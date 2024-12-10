@@ -42,7 +42,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Project name</a>
+          <a class="navbar-brand" href="#">Autonomous Object Retrieval Robot</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
@@ -102,14 +102,68 @@
               <h2>Design</h2>
               <h3 style="text-align: center; padding: 0px 150px;">Hardware Design</h3>
               <h4 style="text-align: center; padding: 0px 150px;">Glove Design</h4>
-              <p style="text-align: justify; padding: 0px 150px;">Your glove design description goes here.</p>
+              <p style="text-align: justify; padding: 0px 150px;">We have mounted the Raspberry Pi 4 and a camera onto the glove. Also, we implemented a button on the Raspberry Pi 4 to control the camera. Using soldering, we connected the button and a 1kΩ resistor, wiring them to GPIO pin 17 and Ground. This setup was thoroughly tested to ensure both the hardware’s stability and the responsiveness of the button control.</p>
               <h4 style="text-align: center; padding: 0px 150px;">Robot Design</h4>
-              <p style="text-align: justify; padding: 0px 150px;">Your robot design description goes here.</p>              
+              <p style="text-align: justify; padding: 0px 150px;">In our robot design, we utilize a Raspberry Pi 4 to control the robot's movements and arm. The robot is equipped with two servos for controlling the arm and two servos for robot movement. The servos are connected to specific GPIO pins on the Raspberry Pi, which are used to send control signals for precise movement. The Raspberry Pi acts as the central control unit, coordinating the servos' actions based on the input from the camera-equipped glove. Our GPIO pin mappings are shown in the table below.</p> 
+              <h4 style="text-align: center; padding: 0px 150px;">Table 1: RaspberryPi GPIO Pin to Signal Mapping</h4>
+              <table style="width: 100%; text-align: center; padding: 0px 150px; border-collapse: collapse;">
+                <tr>
+                  <th style="border-bottom: 1px solid #D3D3D3; padding: 8px; text-align: center;">Pi GPIO Pin</th>
+                  <th style="border-bottom: 1px solid #D3D3D3; padding: 8px; text-align: center;">Signal Name</th>
+                  <tr>
+                    <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 4</td>
+                    <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
+                  </tr>
+                  <tr>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 5</td>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
+                </tr>
+                <tr>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 6</td>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
+                </tr>
+                <tr>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 12</td>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
+                </tr>
+                <tr>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 13</td>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
+                </tr>
+                <tr>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 16</td>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">PWM signal for right motor</td>
+                </tr>
+                <tr>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 19</td>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">PWM signal for left motor</td>
+                </tr>
+                <tr>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 20</td>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
+                </tr>
+                <tr>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 21</td>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
+                  <tr>
+                    <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 23</td>
+                    <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
+                  </tr>
+                  <tr>
+                    <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 26</td>
+                    <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
+              </table>   
               <h3 style="text-align: center; padding: 0px 150px;">Software Design</h3>
               <h4 style="text-align: center; padding: 0px 150px;">Glove Design</h4>
-              <p style="text-align: justify; padding: 0px 150px;">Your glove design description goes here.</p>
+              <p style="text-align: justify; padding: 0px 150px;">The software design for the device is centered around detecting and identifying color-coded objects using computer vision techniques and sending the detected color to the robot. The program utilizes the OpenCV library (cv2) for real-time image processing, where the camera feed is continuously captured and analyzed to detect specific color cubes.</p>
+              <p style="text-align: justify; padding: 0px 150px;">1. The Color Detection: The color detection is based on the HSV color space, with predefined ranges for different colors (Green, Blue, Yellow). The software first captures a frame from the camera, converts it to the HSV color space, and then applies a mask to isolate regions of the image matching the color ranges. Contours of these regions are found and used to calculate the center of the object.</p>
+              <p style="text-align: justify; padding: 0px 150px;">2. System Integration: A button is used to trigger the color detection process, allowing the user to initiate the system when desired. Once the color is detected, the software sends the color information via a socket connection to a remote server, ensuring the robot is informed of the object’s color for further action.</p>
               <h4 style="text-align: center; padding: 0px 150px;">Robot Design</h4>
-              <p style="text-align: justify; padding: 0px 150px;">Your software design description goes here.</p>
+              <p style="text-align: justify; padding: 0px 150px;">1. Server: The robot's communication system uses a server-side setup to receive color data transmitted from the camera-equipped glove. A socket server listens for incoming connections and is configured to bind to a specific IP address and port. Once a connection is established, the server waits for color data sent by the client (the glove's camera system). This data is then received, decoded, and processed to trigger robot actions based on the specified color. </p> 
+              <p style="text-align: justify; padding: 0px 150px;">2. Arm control</p>
+              <p style="text-align: justify; padding: 0px 150px;">3. Motor control</p>
+              <p style="text-align: justify; padding: 0px 150px;">2. Integration</p>
+
       </div>
 
     <hr id='drawings'>
