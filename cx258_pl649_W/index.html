@@ -242,6 +242,164 @@ int main(){
   printf("Hello World.\n");
 }
               </code></pre>
+              <pre><code>
+//Server_color.py
+<span style="color: #0e84b5; font-weight: bold">import socket</span>
+<span style="color: #888888"># Function to handle receiving color data from a client</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">sending_color</span>():
+  <span style="color: #008800; font-weight: bold">global</span> data
+  <span style="color: #888888"># Server configuration</span>
+  HOST <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39;10.49.240.92&#39;</span> <span style="color: #888888"># Server&#39;s IP address</span>
+  PORT <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">5000</span>      <span style="color: #888888"># Port to listen on</span>
+
+  <span style="color: #888888"># Create a socket</span>
+  server_socket <span style="color: #333333">=</span> socket<span style="color: #333333">.</span>socket(socket<span style="color: #333333">.</span>AF_INET, socket<span style="color: #333333">.</span>SOCK_STREAM)
+  <span style="color: #888888"># Allow address reuse</span>
+  server_socket<span style="color: #333333">.</span>setsockopt(socket<span style="color: #333333">.</span>SOL_SOCKET, socket<span style="color: #333333">.</span>SO_REUSEADDR, <span style="color: #0000DD; font-weight: bold">1</span>)  
+  <span style="color: #888888"># Bind the socket to the specified IP and port</span>
+  server_socket<span style="color: #333333">.</span>bind((HOST, PORT)) 
+  <span style="color: #888888"># Listen for incoming connections (1 client at a time)</span>
+  server_socket<span style="color: #333333">.</span>listen(<span style="color: #0000DD; font-weight: bold">1</span>) 
+
+  <span style="color: #008800; font-weight: bold">print</span>(<span style="background-color: #fff0f0">&quot;Server is waiting for a connection...&quot;</span>)
+
+  <span style="color: #888888"># Accept a connection</span>
+  client_socket, client_address <span style="color: #333333">=</span> server_socket<span style="color: #333333">.</span>accept()
+  <span style="color: #008800; font-weight: bold">print</span>(f<span style="background-color: #fff0f0">&quot;Connected by {client_address}&quot;</span>)
+
+  <span style="color: #888888"># Receive data</span>
+  data <span style="color: #333333">=</span> client_socket<span style="color: #333333">.</span>recv(<span style="color: #0000DD; font-weight: bold">1024</span>)<span style="color: #333333">.</span>decode(<span style="background-color: #fff0f0">&#39;utf-8&#39;</span>)
+  <span style="color: #008800; font-weight: bold">print</span>(f<span style="background-color: #fff0f0">&quot;Received: {data}&quot;</span>)
+
+  <span style="color: #888888"># Close the client and server sockets to clean up resources</span>
+  client_socket<span style="color: #333333">.</span>close()
+  server_socket<span style="color: #333333">.</span>close()
+          </code></pre>
+          <pre><code>
+  //color_detect_send.py
+  <span style="color: #0e84b5; font-weight: bold">import socket</span> <span style="color: #888888"># For video capture and image processing</span>
+  <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">numpy</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">np</span>
+  <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">threading</span>
+  <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">socket</span>
+  <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">time</span>
+  <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">RPi._GPIO</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">GPIO</span> <span style="color: #888888"># For Raspberry Pi GPIO control</span>
+  <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">os</span>
+  <span style="color: #888888"># Configure GPIO settings</span>
+  GPIO<span style="color: #333333">.</span>setmode(GPIO<span style="color: #333333">.</span>BCM)
+  GPIO<span style="color: #333333">.</span>setup(<span style="color: #0000DD; font-weight: bold">17</span>, GPIO<span style="color: #333333">.</span>IN, pull_up_down<span style="color: #333333">=</span>GPIO<span style="color: #333333">.</span>PUD_UP)
+  
+  stop <span style="color: #333333">=</span> <span style="color: #007020">False</span> 
+  cap <span style="color: #333333">=</span> <span style="color: #007020">None</span>
+  lock <span style="color: #333333">=</span> threading<span style="color: #333333">.</span>Lock()
+  color_name <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39;&#39;</span>
+  
+  <span style="color: #888888"># Server connection IP address and port number</span>
+  HOST <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39;10.49.240.92&#39;</span>
+  PORT <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">5000</span>        
+  
+  <span style="color: #888888"># Define HSV color ranges for different colors</span>
+  color_ranges <span style="color: #333333">=</span> {
+      <span style="background-color: #fff0f0">&quot;Green&quot;</span>: ([<span style="color: #0000DD; font-weight: bold">45</span>, <span style="color: #0000DD; font-weight: bold">35</span>, <span style="color: #0000DD; font-weight: bold">35</span>], [<span style="color: #0000DD; font-weight: bold">75</span>, <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">255</span>]),    
+      <span style="background-color: #fff0f0">&quot;Blue&quot;</span>: ([<span style="color: #0000DD; font-weight: bold">105</span>, <span style="color: #0000DD; font-weight: bold">125</span>, <span style="color: #0000DD; font-weight: bold">125</span>], [<span style="color: #0000DD; font-weight: bold">135</span>, <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">255</span>]),  
+      <span style="background-color: #fff0f0">&quot;Yellow&quot;</span>: ([<span style="color: #0000DD; font-weight: bold">20</span>, <span style="color: #0000DD; font-weight: bold">180</span>, <span style="color: #0000DD; font-weight: bold">180</span>], [<span style="color: #0000DD; font-weight: bold">40</span>, <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">255</span>]), 
+  }
+  
+  <span style="color: #888888"># Function to identify the main color in a frame</span>
+  <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">find_main_color</span>(frame):
+      <span style="color: #888888"># Convert the frame to HSV color space</span>
+      hsv_frame <span style="color: #333333">=</span> cv2<span style="color: #333333">.</span>cvtColor(frame, cv2<span style="color: #333333">.</span>COLOR_BGR2HSV)
+  
+      <span style="color: #888888"># Initialize to store color count</span>
+      color_count <span style="color: #333333">=</span> {color: <span style="color: #0000DD; font-weight: bold">0</span> <span style="color: #008800; font-weight: bold">for</span> color <span style="color: #000000; font-weight: bold">in</span> color_ranges}
+      <span style="color: #888888"># Loop through each color range and apply a mask</span>
+      <span style="color: #008800; font-weight: bold">for</span> color_name, (lower, upper) <span style="color: #000000; font-weight: bold">in</span> color_ranges<span style="color: #333333">.</span>items():
+          <span style="color: #888888"># Create lower and upper bound arrays</span>
+          lower_bound <span style="color: #333333">=</span> np<span style="color: #333333">.</span>array(lower, dtype<span style="color: #333333">=</span>np<span style="color: #333333">.</span>uint8)
+          upper_bound <span style="color: #333333">=</span> np<span style="color: #333333">.</span>array(upper, dtype<span style="color: #333333">=</span>np<span style="color: #333333">.</span>uint8)
+  
+          <span style="color: #888888"># Create a binary mask where color is detected</span>
+          mask <span style="color: #333333">=</span> cv2<span style="color: #333333">.</span>inRange(hsv_frame, lower_bound, upper_bound)
+  
+          <span style="color: #888888"># Count the number of pixels matching the color</span>
+          color_count[color_name] <span style="color: #333333">=</span> np<span style="color: #333333">.</span>sum(mask)  <span style="color: #888888"># Sum the pixels that match the color</span>
+  
+      <span style="color: #888888"># Determine the main color (the one with the highest count)</span>
+      main_color <span style="color: #333333">=</span> <span style="color: #007020">max</span>(color_count, key<span style="color: #333333">=</span>color_count<span style="color: #333333">.</span>get)
+      <span style="color: #888888"># Ignore insignificant detections</span>
+      <span style="color: #008800; font-weight: bold">if</span> color_count[main_color] <span style="color: #333333">&lt;</span> <span style="color: #0000DD; font-weight: bold">300</span>:
+          <span style="color: #008800; font-weight: bold">return</span> <span style="color: #007020">None</span>
+      <span style="color: #008800; font-weight: bold">print</span>(f<span style="background-color: #fff0f0">&quot;The main color detected is: {main_color}&quot;</span>)
+      <span style="color: #008800; font-weight: bold">return</span> main_color
+  
+  <span style="color: #888888"># Function to send the detected color to a server</span>
+  <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">send_color</span>(message):
+      <span style="color: #888888"># Create a client socket </span>
+      client_socket <span style="color: #333333">=</span> socket<span style="color: #333333">.</span>socket(socket<span style="color: #333333">.</span>AF_INET, socket<span style="color: #333333">.</span>SOCK_STREAM)
+      <span style="color: #008800; font-weight: bold">while</span> <span style="color: #007020">True</span>:
+          <span style="color: #008800; font-weight: bold">try</span>:
+              <span style="color: #888888"># Try to connect to the server</span>
+              client_socket<span style="color: #333333">.</span>connect((HOST, PORT))
+              <span style="color: #008800; font-weight: bold">print</span>(<span style="background-color: #fff0f0">&quot;Connected to the server successfully.&quot;</span>)
+              <span style="color: #008800; font-weight: bold">break</span>  <span style="color: #888888"># Exit the loop once connected</span>
+          <span style="color: #008800; font-weight: bold">except</span> socket<span style="color: #333333">.</span>error <span style="color: #008800; font-weight: bold">as</span> e:
+              <span style="color: #008800; font-weight: bold">print</span>(f<span style="background-color: #fff0f0">&quot;Connection failed: {e}. Retrying in 5 seconds...&quot;</span>)
+              time<span style="color: #333333">.</span>sleep(<span style="color: #0000DD; font-weight: bold">5</span>)  <span style="color: #888888"># Wait for 5 seconds before retrying</span>
+  
+      <span style="color: #888888"># Send the encoded message to the server</span>
+      client_socket<span style="color: #333333">.</span>send(message<span style="color: #333333">.</span>encode(<span style="background-color: #fff0f0">&#39;utf-8&#39;</span>))
+      time<span style="color: #333333">.</span>sleep(<span style="color: #0000DD; font-weight: bold">3</span>) 
+  
+      <span style="color: #888888"># Close the connection</span>
+      client_socket<span style="color: #333333">.</span>close()
+      <span style="color: #008800; font-weight: bold">print</span>(<span style="background-color: #fff0f0">&quot;Connection closed.&quot;</span>)
+  
+  <span style="color: #888888"># Function to handle color detection    </span>
+  <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">color_detection</span>():
+      <span style="color: #008800; font-weight: bold">global</span> stop, cap, color_name
+      cap <span style="color: #333333">=</span> cv2<span style="color: #333333">.</span>VideoCapture(<span style="color: #0000DD; font-weight: bold">0</span>)  <span style="color: #888888"># Open the default camera</span>
+      
+      <span style="color: #008800; font-weight: bold">while</span> <span style="color: #007020">True</span>:
+          ret, frame <span style="color: #333333">=</span> cap<span style="color: #333333">.</span>read() <span style="color: #888888"># Capture a frame</span>
+          <span style="color: #008800; font-weight: bold">if</span> <span style="color: #000000; font-weight: bold">not</span> ret:
+              cd_stop() <span style="color: #888888"># Stop if no frame is captured</span>
+              <span style="color: #008800; font-weight: bold">break</span>
+  
+          <span style="color: #888888"># Process the frame to find color cubes</span>
+          <span style="color: #008800; font-weight: bold">with</span> lock:
+              color_name <span style="color: #333333">=</span> find_main_color(frame) <span style="color: #888888"># Detect main color</span>
+          <span style="color: #008800; font-weight: bold">print</span>(<span style="background-color: #fff0f0">&quot;color_detection:::::::::::::::::::&quot;</span>, color_name)  
+          time<span style="color: #333333">.</span>sleep(<span style="color: #6600EE; font-weight: bold">0.5</span>)  
+          <span style="color: #888888"># If a recognized color is detected, send it to the server</span>
+          <span style="color: #008800; font-weight: bold">if</span> (color_name<span style="color: #333333">==</span><span style="background-color: #fff0f0">&quot;Green&quot;</span> <span style="color: #000000; font-weight: bold">or</span> color_name<span style="color: #333333">==</span><span style="background-color: #fff0f0">&quot;Yellow&quot;</span> <span style="color: #000000; font-weight: bold">or</span> color_name<span style="color: #333333">==</span><span style="background-color: #fff0f0">&quot;Blue&quot;</span>):
+              message <span style="color: #333333">=</span> f<span style="background-color: #fff0f0">&quot;{color_name}&quot;</span>
+              cd_stop()
+              send_color(message)
+  
+          <span style="color: #888888"># Exit the loop if &#39;q&#39; is pressed</span>
+          <span style="color: #008800; font-weight: bold">if</span> cv2<span style="color: #333333">.</span>waitKey(<span style="color: #0000DD; font-weight: bold">1</span>) <span style="color: #333333">&amp;</span> <span style="color: #005588; font-weight: bold">0xFF</span> <span style="color: #333333">==</span> <span style="color: #007020">ord</span>(<span style="background-color: #fff0f0">&#39;q&#39;</span>):
+              stop <span style="color: #333333">=</span> <span style="color: #007020">True</span>
+              cd_stop()
+              <span style="color: #008800; font-weight: bold">break</span>
+  <span style="color: #888888"># Function to clean up video capture resources</span>
+  <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">cd_stop</span>():
+      <span style="color: #008800; font-weight: bold">global</span> cap
+      cap<span style="color: #333333">.</span>release() <span style="color: #888888"># Release the camera</span>
+      cv2<span style="color: #333333">.</span>destroyAllWindows() <span style="color: #888888"># Close all OpenCV windows</span>
+  
+  <span style="color: #008800; font-weight: bold">try</span>:
+      <span style="color: #008800; font-weight: bold">while</span>(<span style="color: #007020">True</span>):
+          flag17 <span style="color: #333333">=</span> GPIO<span style="color: #333333">.</span>input(<span style="color: #0000DD; font-weight: bold">17</span>) <span style="color: #888888"># Monitor GPIO pin 17 for input</span>
+          <span style="color: #008800; font-weight: bold">while</span>(flag17): 
+              time<span style="color: #333333">.</span>sleep(<span style="color: #6600EE; font-weight: bold">0.1</span>)  
+              flag17 <span style="color: #333333">=</span> GPIO<span style="color: #333333">.</span>input(<span style="color: #0000DD; font-weight: bold">17</span>)
+              <span style="color: #008800; font-weight: bold">if</span> flag17<span style="color: #333333">==</span><span style="color: #0000DD; font-weight: bold">0</span>: <span style="color: #888888"># Start color detection when flag17 is low</span>
+                  color_detection()
+  <span style="color: #008800; font-weight: bold">except</span> <span style="color: #FF0000; font-weight: bold">KeyboardInterrupt</span>:
+      <span style="color: #008800; font-weight: bold">print</span>(<span style="background-color: #fff0f0">&quot;Keyboard interrupt received. Cleaning up...&quot;</span>)
+  <span style="color: #008800; font-weight: bold">finally</span>:
+      GPIO<span style="color: #333333">.</span>cleanup() <span style="color: #888888"># Reset GPIO pins</span>
+      cd_stop()  <span style="color: #888888"># Release camera and clean up resources</span>
+                </code></pre>
       </div>
 
     </div><!-- /.container -->
