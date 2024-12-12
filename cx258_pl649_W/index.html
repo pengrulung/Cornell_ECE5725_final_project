@@ -157,9 +157,9 @@
               <h4 style="text-align: center; padding: 0px 150px;">Glove Design</h4>
               <p style="text-align: justify; padding: 0px 150px;">The software design for the device is centered around detecting and identifying color-coded objects using computer vision techniques and sending the detected color to the robot. The program utilizes the OpenCV library (cv2) for real-time image processing, where the camera feed is continuously captured and analyzed to detect specific color cubes.</p>
               <p style="text-align: justify; padding: 0px 150px;">1. The Color Detection: The color detection is based on the HSV color space, with predefined ranges for different colors (Green, Blue, Yellow). The software first captures a frame from the camera, converts it to the HSV color space, and then applies a mask to isolate regions of the image matching the color ranges. Contours of these regions are found and used to calculate the center of the object.</p>
-              <p style="text-align: justify; padding: 0px 150px;">2. System Integration: A button is used to trigger the color detection process, allowing the user to initiate the system when desired. Once the color is detected, the software sends the color information via a socket connection to a remote server, ensuring the robot is informed of the object’s color for further action.</p>
+              <p style="text-align: justify; padding: 0px 150px;">2. System Integration: A button is used to trigger the color detection process, allowing the user to initiate the system when desired. The system utilizes Wi-Fi communication to transmit the detected color information. Once the color is detected, the software sends the color information via a socket connection over Wi-Fi to a remote server. This ensures the robot is informed of the object’s color for further action in real-time.</p>
               <h4 style="text-align: center; padding: 0px 150px;">Robot Design</h4>
-              <p style="text-align: justify; padding: 0px 150px;">1. Server: The robot's communication system uses a server-side setup to receive color data transmitted from the camera-equipped glove. A socket server listens for incoming connections and is configured to bind to a specific IP address and port. Once a connection is established, the server waits for color data sent by the client (the glove's camera system). This data is then received, decoded, and processed to trigger robot actions based on the specified color. </p> 
+              <p style="text-align: justify; padding: 0px 150px;">1. Server: The robot's communication system uses Wi-Fi for seamless data exchange with the camera-equipped glove. The robot acts as a server, listening for connections on a specific IP and port, while the glove connects as a client. Upon receiving signals from the glove, the server decodes the data and triggers actions based on the detected color. This setup ensures real-time, efficient coordination between the glove and the robot. </p> 
               <p style="text-align: justify; padding: 0px 150px;">2. Arm control</p>
               <p style="text-align: justify; padding: 0px 150px;">3. Motor control</p>
               <p style="text-align: justify; padding: 0px 150px;">2. Integration</p>
@@ -400,6 +400,23 @@ int main(){
       GPIO<span style="color: #333333">.</span>cleanup() <span style="color: #888888"># Reset GPIO pins</span>
       cd_stop()  <span style="color: #888888"># Release camera and clean up resources</span>
                 </code></pre>
+                <pre><code>
+// run.sh
+<span style="color: #888888">#!/usr/bin/env bash</span>
+<span style="color: #888888"># Start the pigpio daemon, which is required for GPIO control</span>
+sudo pigpiod
+<span style="color: #888888"># Infinite loop to continuously execute the Python scripts</span>
+<span style="color: #008800; font-weight: bold">while</span> true
+do
+    <span style="color: #888888"># Run the motor control script</span>
+    sudo python3 motor_control<span style="color: #333333">.</span>py
+    <span style="color: #888888"># Run the go-back script</span>
+    sudo python3 go_back<span style="color: #333333">.</span>py
+    <span style="color: #888888"># Optionally, Pause for 1 second before the next iteration</span>
+done
+                                </code></pre>    
+                
+
       </div>
 
     </div><!-- /.container -->
