@@ -11,6 +11,8 @@ import color_detect as cd
 import math
 import arm_control as ac
 import cv2
+import server_color as sc
+
 
 
 GPIO.setmode(GPIO.BCM)
@@ -30,6 +32,7 @@ pwm24.start(duty_cycleA)
 pwm16.start(duty_cycleB)
      
 pygame.init()
+
 
 flag = 0
 pause = False
@@ -53,6 +56,11 @@ def rcw(speed):
         GPIO.output(20, GPIO.LOW)
         pwm16.ChangeDutyCycle(speed)
 
+# def rccw(speed):
+#     if not pause:
+#         GPIO.output(20, GPIO.HIGH)
+#         GPIO.output(21, GPIO.LOW)
+#         pwm16.ChangeDutyCycle(speed)
 
 def lstop():
     pwm24.ChangeDutyCycle(0)
@@ -68,10 +76,14 @@ def run_motor():
     prev_left_speed = 0
     prev_right_speed = 0
     max_delta = 5 
-
     time.sleep(2)
 
+
+
+
     while True:
+        lccw(100)
+        time.sleep(0.15)
         with lock:
             category = cd.color_name
             x = cd.cx
@@ -79,13 +91,26 @@ def run_motor():
             approx = cd.approx
 
         if category == cd.target:
+            # lstop()
+            # time.sleep(1)
             break
-
-        lccw(100)
-        time.sleep(0.15)
         lstop()
         time.sleep(0.2)
-        # print("detection00000000000000000000000000: ", category)
+    
+    # while True:
+    #     print("111111111111111111111111")
+    #     rcw(100)
+    #     with lock:
+    #         category = cd.color_name
+    #         x = cd.cx
+    #         y = cd.cy
+    #         approx = cd.approx
+
+    #     if category == cd.target:
+    #         break
+    #     time.sleep(0.15)
+    #     lstop()
+    #     time.sleep(0.2)
 
 
     while True:
@@ -98,6 +123,10 @@ def run_motor():
             x = cd.cx
             y = cd.cy
             approx = cd.approx
+            step_stop = cd.step_stop
+
+        # if step_stop:
+        #     time.sleep(2)
 
 
         if  category == cd.target:
@@ -137,13 +166,20 @@ def run_motor():
 
 
 try:
-    cd.enable_threshold_filter = True
-    cd.target = "Blue"
-    cd.target_pos = 320
-    ac.go_back_default()
+
+    sc.sending_color()
+    cd.target = sc.data
+    # cd.target = "Blue"
+    if(cd.target == "Green"):
+        cd.target_pos = 339
+    if(cd.target == "Yellow"):
+        cd.target_pos = 315
+    if(cd.target == "Blue"):
+        cd.target_pos = 329
+    ac.default()
     motor_thread = threading.Thread(target=run_motor)
     detect_thread = threading.Thread(target=cd.color_detection)
-    
+
     motor_thread.start()
     detect_thread.start()
 
@@ -160,9 +196,24 @@ try:
         ret, frame = cap.read()
         color_name, x, y, approx = cd.find_color_cubes(frame)
     cd.cd_stop()
+    ac.pick(x, y)
 
-    ac.release(x,y)
 
+    # cd.returning = True
+
+
+    # motor_thread2 = threading.Thread(target=run_motor)
+    # detect_thread2 = threading.Thread(target=cd.color_detection)
+    
+    # motor_thread2.start()
+    # detect_thread2.start()
+
+    # motor_thread2.join()  
+    # detect_thread2.join() 
+
+
+    # pwm24.stop()
+    # pwm16.stop()
     ac.ac_quit()
     sys.exit()
     cd.cd_stop()
