@@ -53,6 +53,10 @@
             <li><a href="#drawings">Drawings</a></li>
             <li><a href="#testing">Testing</a></li>
             <li><a href="#result">Result</a></li>
+            <li><a href="#work">Work Distribution</a></li>
+            <li><a href="#parts">Parts List</a></li>
+            <li><a href="#ref">References</a></li>
+            <li><a href="#code">Code</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
@@ -62,7 +66,7 @@
 
       <div class="starter-template">
         <h1>Autonomous Object Retrieval Robot</h1>
-        <p class="lead">Innovative and Impressive<br>A Project By Chenxin Xun and Pengru Lung.</p>
+        <p class="lead">ECE5725 2024Fall Project<br>A Project By Chenxin Xun and Pengru Lung.</p>
       </div>
 
       <hr>
@@ -82,7 +86,7 @@
 
       <div class="row">
           <div class="col-md-4" style="text-align:center;">
-          <img class="img-rounded" src="pics/1.jpg" alt="Generic placeholder image" width="240" height="240">
+          <img class="img-rounded" src="pics/robot2.jpg" alt="Generic placeholder image" width="377" height="240">
           </div>
           <div class="col-md-8" style="font-size:18px;">
           <h2>Project Objective:</h2>
@@ -112,23 +116,23 @@
                   <th style="border-bottom: 1px solid #D3D3D3; padding: 8px; text-align: center;">Signal Name</th>
                   <tr>
                     <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 4</td>
-                    <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
+                    <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">Robot wrist rotation control</td>
                   </tr>
                   <tr>
                   <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 5</td>
-                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">Direction control for left motor</td>
                 </tr>
                 <tr>
                   <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 6</td>
-                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">Direction control for left motor</td>
                 </tr>
                 <tr>
                   <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 12</td>
-                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">Robot arm base rotation control</td>
                 </tr>
                 <tr>
                   <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 13</td>
-                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">Robot shoulder elevation control</td>
                 </tr>
                 <tr>
                   <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 16</td>
@@ -140,18 +144,14 @@
                 </tr>
                 <tr>
                   <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 20</td>
-                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">Direction control for right motor</td>
                 </tr>
                 <tr>
                   <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 21</td>
-                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
-                  <tr>
-                    <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 23</td>
-                    <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
-                  </tr>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">Direction control for right motor</td>
                   <tr>
                     <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 26</td>
-                    <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
+                    <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">Robot elbow joint control</td>
               </table>   
               <h3 style="text-align: center; padding: 0px 150px;">Software Design</h3>
               <h4 style="text-align: center; padding: 0px 150px;">Glove Design</h4>
@@ -177,23 +177,23 @@
 
       <div style="text-align:center;">
               <h2>Testing</h2>
-              <p style="text-align: left;padding: 0px 30px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum lorem nulla, consectetur at leo vel, pretium bibendum nisl. Cras blandit quam a enim ultrices, eu convallis enim posuere. Donec eleifend enim sed purus consectetur, vitae cursus lectus varius. Vivamus consectetur felis nec est venenatis posuere. Phasellus vitae aliquet erat. In laoreet lacinia mollis. Quisque iaculis nisl fermentum pharetra lobortis. Donec rhoncus dui sem, ac molestie leo tristique vel. Phasellus in nibh feugiat, fringilla lectus in, elementum magna. Etiam quis dui condimentum, tempus ex in, dapibus est. Cras ut congue augue. Donec ac enim ex. Ut id tristique risus, vel porttitor quam. Sed ultricies enim eu nibh porttitor, vel sodales enim feugiat. Fusce volutpat venenatis magna ac ultrices. Curabitur eget urna ut nulla mattis convallis non eu diam.</p>
+              <p style="text-align: left;padding: 0px 30px;">In our testing, we conducted separate tests for the glove and the robot. We tested the glove by pointing it at a specific color and printing the color. For the robot, we tested it by placing a ball in front of it, and the robot was able to pick up the ball. With the basic tests passed, we also implemented additional tests, such as ensuring the robot can ignore balls of different colors and pick up only the assigned color. Additionally, we tested its ability to detect the blue bar and return it to the designated location.</p>
+              <p style="text-align: left;padding: 0px 30px;">After thoroughly testing these two devices, we performed system integration. In this test, the glove points to a color, and the glove sends the color to the robot. The robot should follow the color contained in the message, go pick up the ball, and return it to its designated location.</p>
+              <p style="text-align: left;padding: 0px 30px;">In our testing, sometimes the robot can pick up the ball correctly, but there are instances where it does not work as expected. In some cases, we need to perform calibration. Additionally, due to some multithreading issues, the camera did not close correctly, causing the video to reopen unexpectedly. In general, we need to recalibrate the robot after approximately 10 pickups. Also, when the robot continuously picks up and returns balls without restarting the program, the camera may encounter issues opening properly. However, once the calibration is complete and the program is restarted, the robot can perform the task of picking up different balls in most situations.</p>
       </div>
 
     <hr id='result'>
 
       <div style="text-align:center;">
               <h2>Result</h2>
-              <p style="text-align: left;padding: 0px 30px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum lorem nulla, consectetur at leo vel, pretium bibendum nisl. Cras blandit quam a enim ultrices, eu convallis enim posuere. Donec eleifend enim sed purus consectetur, vitae cursus lectus varius. Vivamus consectetur felis nec est venenatis posuere. Phasellus vitae aliquet erat. In laoreet lacinia mollis. Quisque iaculis nisl fermentum pharetra lobortis. Donec rhoncus dui sem, ac molestie leo tristique vel. Phasellus in nibh feugiat, fringilla lectus in, elementum magna. Etiam quis dui condimentum, tempus ex in, dapibus est. Cras ut congue augue. Donec ac enim ex. Ut id tristique risus, vel porttitor quam. Sed ultricies enim eu nibh porttitor, vel sodales enim feugiat. Fusce volutpat venenatis magna ac ultrices. Curabitur eget urna ut nulla mattis convallis non eu diam.</p>
-      </div>
-
+              <p style="text-align: left;padding: 0px 30px;">In conclusion, we have the glove point to a specific color and use Wi-Fi transmission to send the assigned color to the robot. The robot can detect the specific color ball, move towards it, pick it up, and return the ball to the designated position. We have our demonstration in the video above. In this project, we still need to improve reliability, whether by using more decision-making processes to determine whether the ball has been picked up, performing calibration automatically, adding PID control to regulate the signal, or improving multithreading for more stable performance.</p>
+              <p style="text-align: left;padding: 0px 30px;">All in all, we consider this five-week project to be a significant achievement and a great learning experience.</p>
     <hr>
-
+    <hr id='work'>
     <div class="row" style="text-align:center;">
           <h2>Work Distribution</h2>
           <div style="text-align:center;">
-              <img class="img-rounded" src="pics/group.jpg" alt="Generic placeholder image" style="width:80%;">
-              <h4>Project group picture</h4>
+
           </div>
           <div class="col-md-6" style="font-size:16px">
               <img class="img-rounded" src="pics/a.png" alt="Generic placeholder image" width="240" height="240">
@@ -208,8 +208,7 @@
               <p>Design of Camera-Equipped Glove and Transmission System 
           </div>
       </div>
-
-    <hr>
+      <hr id='parts'>
       <div style="font-size:18px">
           <h2>Parts List</h2>
           <ul>
@@ -221,7 +220,7 @@
           </ul>
           <h3>Total: $97.13</h3>
       </div>
-      <hr>
+      <hr id='ref'>
       <div style="font-size:18px">
           <h2>References</h2>
           <a href="https://picamera.readthedocs.io/">PiCamera Document</a><br>
@@ -232,18 +231,12 @@
 
       </div>
 
-    <hr>
-
+    <hr id='code'>
       <div class="row">
               <h2>Code Appendix</h2>
-              <pre><code>
-// Hello World.c
-int main(){
-  printf("Hello World.\n");
-}
-              </code></pre>
-              <pre><code>
-// color_detect.py
+              
+<h3>color_detect.py</h3>
+<pre><code>
 <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">cv2</span>
 <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">numpy</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">np</span>
 <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">threading</span>
@@ -365,8 +358,8 @@ color_ranges <span style="color: #333333">=</span> {
     cap<span style="color: #333333">.</span>release()  <span style="color: #888888"># Release the video capture object</span>
     cv2<span style="color: #333333">.</span>destroyAllWindows() <span style="color: #888888"># Close all OpenCV windows</span>
               </code></pre>
-              <pre><code>
-//Server_color.py
+<h3>Server_color.py</h3>
+<pre><code>
 <span style="color: #0e84b5; font-weight: bold">import socket</span>
 <span style="color: #888888"># Function to handle receiving color data from a client</span>
 <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">sending_color</span>():
@@ -397,9 +390,9 @@ color_ranges <span style="color: #333333">=</span> {
   <span style="color: #888888"># Close the client and server sockets to clean up resources</span>
   client_socket<span style="color: #333333">.</span>close()
   server_socket<span style="color: #333333">.</span>close()
-          </code></pre>
-          <pre><code>
-  //color_detect_send.py
+          </code></pre>         
+  <h3>color_detect_send.py</h3>
+  <pre><code>
   <span style="color: #008800; font-weight: bold">import</span><span style="color: #0e84b5; font-weight: bold">socket</span> <span style="color: #888888"># For video capture and image processing</span>
   <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">numpy</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">np</span>
   <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">threading</span>
@@ -523,8 +516,8 @@ color_ranges <span style="color: #333333">=</span> {
       GPIO<span style="color: #333333">.</span>cleanup() <span style="color: #888888"># Reset GPIO pins</span>
       cd_stop()  <span style="color: #888888"># Release camera and clean up resources</span>
                 </code></pre>
-                <pre><code>
-// arm_control.py
+<h3>arm_control.py</h3>
+                    <pre><code>
 <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">pigpio</span>
   <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">time</span>
   <span style="color: #888888"># Initialize pigpio and check connection</span>
@@ -679,8 +672,9 @@ color_ranges <span style="color: #333333">=</span> {
           pi<span style="color: #333333">.</span>set_servo_pulsewidth(specs[<span style="background-color: #fff0f0">&#39;pin&#39;</span>], <span style="color: #0000DD; font-weight: bold">0</span>)
       pi<span style="color: #333333">.</span>stop()  <span style="color: #888888"># Stop pigpio daemon</span>
                 </code></pre>
-                <pre><code>
-//go_back.py 
+                
+<h3>go_back.py </h3>
+<pre><code>
 <span style="color: #888888"># Import libraries</span>
 <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">pygame</span><span style="color: #333333">,</span><span style="color: #0e84b5; font-weight: bold">pigame</span>
 <span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">pygame.locals</span> <span style="color: #008800; font-weight: bold">import</span> <span style="color: #333333">*</span>
@@ -864,8 +858,9 @@ lock <span style="color: #333333">=</span> threading<span style="color: #333333"
 <span style="color: #008800; font-weight: bold">finally</span>:
     cd<span style="color: #333333">.</span>cd_stop() <span style="color: #888888"># Color detection stops</span>  
                   </code></pre>
-                <pre><code>
-// run.sh
+                
+<h3>run.sh</h3>
+<pre><code>
 <span style="color: #888888">#!/usr/bin/env bash</span>
 <span style="color: #888888"># Start the pigpio daemon, which is required for GPIO control</span>
 sudo pigpiod
