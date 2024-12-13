@@ -680,6 +680,191 @@ color_ranges <span style="color: #333333">=</span> {
       pi<span style="color: #333333">.</span>stop()  <span style="color: #888888"># Stop pigpio daemon</span>
                 </code></pre>
                 <pre><code>
+//go_back.py 
+<span style="color: #888888"># Import libraries</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">pygame</span><span style="color: #333333">,</span><span style="color: #0e84b5; font-weight: bold">pigame</span>
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">pygame.locals</span> <span style="color: #008800; font-weight: bold">import</span> <span style="color: #333333">*</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">os</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">RPi._GPIO</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">GPIO</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">sys</span>
+<span style="color: #008800; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">time</span> <span style="color: #008800; font-weight: bold">import</span> sleep
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">time</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">sys</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">threading</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">color_detect</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">cd</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">math</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">arm_control</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">ac</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">cv2</span>
+
+<span style="color: #888888"># GPIO setup</span>
+GPIO<span style="color: #333333">.</span>setmode(GPIO<span style="color: #333333">.</span>BCM) 
+GPIO<span style="color: #333333">.</span>setup(<span style="color: #0000DD; font-weight: bold">19</span>, GPIO<span style="color: #333333">.</span>OUT)  <span style="color: #888888"># Pin for motor A PWM</span>
+GPIO<span style="color: #333333">.</span>setup(<span style="color: #0000DD; font-weight: bold">5</span>, GPIO<span style="color: #333333">.</span>OUT) <span style="color: #888888"># Pin for motor A direction</span>
+GPIO<span style="color: #333333">.</span>setup(<span style="color: #0000DD; font-weight: bold">6</span>, GPIO<span style="color: #333333">.</span>OUT) <span style="color: #888888"># Pin for motor A direction</span>
+GPIO<span style="color: #333333">.</span>setup(<span style="color: #0000DD; font-weight: bold">16</span>, GPIO<span style="color: #333333">.</span>OUT) <span style="color: #888888"># Pin for motor B PWM</span>
+GPIO<span style="color: #333333">.</span>setup(<span style="color: #0000DD; font-weight: bold">20</span>, GPIO<span style="color: #333333">.</span>OUT) <span style="color: #888888"># Pin for motor B direction</span>
+GPIO<span style="color: #333333">.</span>setup(<span style="color: #0000DD; font-weight: bold">21</span>, GPIO<span style="color: #333333">.</span>OUT) <span style="color: #888888"># Pin for motor B direction</span>
+
+<span style="color: #888888"># Initialize PWM parameters</span>
+freq <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">480</span>
+duty_cycleA <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span> <span style="color: #888888"># Initial duty cycle for motor A</span>
+duty_cycleB <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span> <span style="color: #888888"># Initial duty cycle for motor B</span>
+pwm24 <span style="color: #333333">=</span> GPIO<span style="color: #333333">.</span>PWM(<span style="color: #0000DD; font-weight: bold">19</span>, freq) <span style="color: #888888"># PWM control for motor A</span>
+pwm16 <span style="color: #333333">=</span> GPIO<span style="color: #333333">.</span>PWM(<span style="color: #0000DD; font-weight: bold">16</span>, freq) <span style="color: #888888"># PWM control for motor B</span>
+pwm24<span style="color: #333333">.</span>start(duty_cycleA)
+pwm16<span style="color: #333333">.</span>start(duty_cycleB)
+
+<span style="color: #888888"># Initialize pygame </span>
+pygame<span style="color: #333333">.</span>init()
+
+flag <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span>
+pause <span style="color: #333333">=</span> <span style="color: #007020">False</span>
+category <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39;&#39;</span>
+x <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span>
+y <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span>
+approx <span style="color: #333333">=</span> []
+checking <span style="color: #333333">=</span> <span style="color: #007020">True</span>
+
+<span style="color: #888888"># Threading lock to manage shared resources</span>
+lock <span style="color: #333333">=</span> threading<span style="color: #333333">.</span>Lock()
+
+<span style="color: #888888"># Function to rotate left motor counter-clockwise at a given speed</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">lccw</span>(speed):
+    <span style="color: #008800; font-weight: bold">if</span> <span style="color: #000000; font-weight: bold">not</span> pause:
+        GPIO<span style="color: #333333">.</span>output(<span style="color: #0000DD; font-weight: bold">5</span>, GPIO<span style="color: #333333">.</span>HIGH)
+        GPIO<span style="color: #333333">.</span>output(<span style="color: #0000DD; font-weight: bold">6</span>, GPIO<span style="color: #333333">.</span>LOW)
+        pwm24<span style="color: #333333">.</span>ChangeDutyCycle(speed)
+
+<span style="color: #888888"># Function to rotate right motor clockwise at a given speed</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">rcw</span>(speed):
+    <span style="color: #008800; font-weight: bold">if</span> <span style="color: #000000; font-weight: bold">not</span> pause:
+        GPIO<span style="color: #333333">.</span>output(<span style="color: #0000DD; font-weight: bold">21</span>, GPIO<span style="color: #333333">.</span>HIGH)
+        GPIO<span style="color: #333333">.</span>output(<span style="color: #0000DD; font-weight: bold">20</span>, GPIO<span style="color: #333333">.</span>LOW)
+        pwm16<span style="color: #333333">.</span>ChangeDutyCycle(speed)
+
+<span style="color: #888888"># Function to stop the left motor</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">lstop</span>():
+    pwm24<span style="color: #333333">.</span>ChangeDutyCycle(<span style="color: #0000DD; font-weight: bold">0</span>)
+
+<span style="color: #888888"># Function to stop the right motor</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">rstop</span>():
+    pwm16<span style="color: #333333">.</span>ChangeDutyCycle(<span style="color: #0000DD; font-weight: bold">0</span>)
+
+<span style="color: #888888"># Main function to run the motor based on color detection</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">run_motor</span>():
+    <span style="color: #008800; font-weight: bold">global</span> category, x, y, approx
+    desired_center <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">320</span> <span style="color: #888888"># Target x-coordinate for object centering</span>
+    proportional_gain <span style="color: #333333">=</span> <span style="color: #6600EE; font-weight: bold">0.6</span>
+    dead_zone <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">10</span>
+    prev_left_speed <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span>
+    prev_right_speed <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span>
+    max_delta <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">5</span> 
+
+    time<span style="color: #333333">.</span>sleep(<span style="color: #0000DD; font-weight: bold">2</span>)
+    <span style="color: #888888"># Initial detection loop (keep rotating left motor to find the target)</span>
+    <span style="color: #008800; font-weight: bold">while</span> <span style="color: #007020">True</span>:
+        <span style="color: #008800; font-weight: bold">with</span> lock:
+            category <span style="color: #333333">=</span> cd<span style="color: #333333">.</span>color_name <span style="color: #888888"># Get current detected color</span>
+            x <span style="color: #333333">=</span> cd<span style="color: #333333">.</span>cx <span style="color: #888888"># Get x-coordinate of detected object</span>
+            y <span style="color: #333333">=</span> cd<span style="color: #333333">.</span>cy <span style="color: #888888"># Get y-coordinate of detected object</span>
+            approx <span style="color: #333333">=</span> cd<span style="color: #333333">.</span>approx
+        <span style="color: #888888"># Stop initial detection if target color is found</span>
+        <span style="color: #008800; font-weight: bold">if</span> category <span style="color: #333333">==</span> cd<span style="color: #333333">.</span>target:
+            <span style="color: #008800; font-weight: bold">break</span>
+
+        lccw(<span style="color: #0000DD; font-weight: bold">100</span>) <span style="color: #888888"># Rotate left motor</span>
+        time<span style="color: #333333">.</span>sleep(<span style="color: #6600EE; font-weight: bold">0.15</span>)
+        lstop()  <span style="color: #888888"># Stop left motor</span>
+        time<span style="color: #333333">.</span>sleep(<span style="color: #6600EE; font-weight: bold">0.2</span>)
+        <span style="color: #888888"># print(&quot;detection00000000000000000000000000: &quot;, category)</span>
+
+    <span style="color: #888888"># Main control loop</span>
+    <span style="color: #008800; font-weight: bold">while</span> <span style="color: #007020">True</span>:
+        <span style="color: #008800; font-weight: bold">with</span> lock:
+            <span style="color: #888888"># if color detection stop, stop the left motor and right motor</span>
+            <span style="color: #008800; font-weight: bold">if</span> cd<span style="color: #333333">.</span>stop:
+                lstop()
+                rstop()
+                <span style="color: #008800; font-weight: bold">break</span>
+            category <span style="color: #333333">=</span> cd<span style="color: #333333">.</span>color_name <span style="color: #888888"># Get current detected color</span>
+            x <span style="color: #333333">=</span> cd<span style="color: #333333">.</span>cx <span style="color: #888888"># Get x-coordinate of detected object</span>
+            y <span style="color: #333333">=</span> cd<span style="color: #333333">.</span>cy <span style="color: #888888"># Get y-coordinate of detected object</span>
+            approx <span style="color: #333333">=</span> cd<span style="color: #333333">.</span>approx
+
+        <span style="color: #008800; font-weight: bold">if</span>  category <span style="color: #333333">==</span> cd<span style="color: #333333">.</span>target:
+            checking <span style="color: #333333">=</span> <span style="color: #007020">False</span>
+            <span style="color: #888888"># Calculate error and correction for centering</span>
+            object_center <span style="color: #333333">=</span> x
+            error <span style="color: #333333">=</span> object_center <span style="color: #333333">-</span> desired_center
+            <span style="color: #888888"># move to the right return place, stop both motor</span>
+            <span style="color: #008800; font-weight: bold">if</span> <span style="color: #007020">abs</span>(error) <span style="color: #333333">&lt;</span> dead_zone:
+                lstop()
+                rstop()
+                <span style="color: #008800; font-weight: bold">continue</span>
+            
+            <span style="color: #888888"># Adjust to the right return place</span>
+            correction <span style="color: #333333">=</span> proportional_gain <span style="color: #333333">*</span> error <span style="color: #333333">/</span> desired_center <span style="color: #333333">*</span> <span style="color: #0000DD; font-weight: bold">50</span>
+            base_speed <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">80</span>  <span style="color: #888888"># Base motor speed</span>
+            left_speed <span style="color: #333333">=</span> base_speed <span style="color: #333333">+</span> correction
+            right_speed <span style="color: #333333">=</span> base_speed <span style="color: #333333">-</span> correction
+            <span style="color: #888888"># Clamp speeds to allowable range</span>
+            left_speed <span style="color: #333333">=</span> <span style="color: #007020">max</span>(<span style="color: #0000DD; font-weight: bold">0</span>, <span style="color: #007020">min</span>(<span style="color: #0000DD; font-weight: bold">100</span>, left_speed))
+            right_speed <span style="color: #333333">=</span> <span style="color: #007020">max</span>(<span style="color: #0000DD; font-weight: bold">0</span>, <span style="color: #007020">min</span>(<span style="color: #0000DD; font-weight: bold">100</span>, right_speed))
+            <span style="color: #888888"># Smooth speed transitions</span>
+            left_speed <span style="color: #333333">=</span> <span style="color: #007020">max</span>(prev_left_speed <span style="color: #333333">-</span> max_delta, <span style="color: #007020">min</span>(left_speed, prev_left_speed <span style="color: #333333">+</span> max_delta))
+            right_speed <span style="color: #333333">=</span> <span style="color: #007020">max</span>(prev_right_speed <span style="color: #333333">-</span> max_delta, <span style="color: #007020">min</span>(right_speed, prev_right_speed <span style="color: #333333">+</span> max_delta))
+            prev_left_speed <span style="color: #333333">=</span> left_speed
+            prev_right_speed <span style="color: #333333">=</span> right_speed
+            <span style="color: #888888"># Set motor speeds</span>
+            lccw(left_speed)
+            rcw(right_speed)
+
+            time<span style="color: #333333">.</span>sleep(<span style="color: #6600EE; font-weight: bold">0.05</span>)
+        <span style="color: #008800; font-weight: bold">else</span>:
+            lstop()
+            rstop()
+            time<span style="color: #333333">.</span>sleep(<span style="color: #6600EE; font-weight: bold">0.1</span>)
+
+<span style="color: #888888"># Main program execution</span>
+<span style="color: #008800; font-weight: bold">try</span>:
+    cd<span style="color: #333333">.</span>enable_threshold_filter <span style="color: #333333">=</span> <span style="color: #007020">True</span> <span style="color: #888888"># Enable threshold filtering for color detection</span>
+    cd<span style="color: #333333">.</span>target <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&quot;Blue&quot;</span> <span style="color: #888888"># Set target color</span>
+    cd<span style="color: #333333">.</span>target_pos <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">320</span>  <span style="color: #888888"># Set target position</span>
+    ac<span style="color: #333333">.</span>go_back_default() <span style="color: #888888"># Move arm to default position</span>
+    
+    <span style="color: #888888"># Create threads for motor and color detection</span>
+    motor_thread <span style="color: #333333">=</span> threading<span style="color: #333333">.</span>Thread(target<span style="color: #333333">=</span>run_motor)
+    detect_thread <span style="color: #333333">=</span> threading<span style="color: #333333">.</span>Thread(target<span style="color: #333333">=</span>cd<span style="color: #333333">.</span>color_detection)
+    
+    <span style="color: #888888"># Start motor and color detection thread</span>
+    motor_thread<span style="color: #333333">.</span>start()
+    detect_thread<span style="color: #333333">.</span>start()
+
+    motor_thread<span style="color: #333333">.</span>join()  
+    detect_thread<span style="color: #333333">.</span>join() 
+
+    <span style="color: #888888"># Stop PWM signals</span>
+    pwm24<span style="color: #333333">.</span>stop()
+    pwm16<span style="color: #333333">.</span>stop()
+
+    ac<span style="color: #333333">.</span>default() <span style="color: #888888"># Reset arm to default state</span>
+    cap <span style="color: #333333">=</span> cv2<span style="color: #333333">.</span>VideoCapture(<span style="color: #0000DD; font-weight: bold">0</span>) <span style="color: #888888"># Start video capture</span>
+    color_name <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39;&#39;</span>
+    <span style="color: #008800; font-weight: bold">while</span> color_name <span style="color: #333333">!=</span> cd<span style="color: #333333">.</span>target:
+        ret, frame <span style="color: #333333">=</span> cap<span style="color: #333333">.</span>read()
+        color_name, x, y, approx <span style="color: #333333">=</span> cd<span style="color: #333333">.</span>find_color_cubes(frame)
+    cd<span style="color: #333333">.</span>cd_stop() <span style="color: #888888"># Stop color detection</span>
+
+    ac<span style="color: #333333">.</span>release(x,y) <span style="color: #888888"># Release object using robotic arm</span>
+    ac<span style="color: #333333">.</span>ac_quit() <span style="color: #888888"># Quit arm control</span>
+    sys<span style="color: #333333">.</span>exit() 
+
+<span style="color: #008800; font-weight: bold">except</span> <span style="color: #FF0000; font-weight: bold">KeyboardInterrupt</span>:
+    <span style="color: #008800; font-weight: bold">print</span>(<span style="background-color: #fff0f0">&quot;Keyboard interrupt received. Cleaning up...&quot;</span>)
+<span style="color: #008800; font-weight: bold">finally</span>:
+    cd<span style="color: #333333">.</span>cd_stop() <span style="color: #888888"># Color detection stops</span>  
+                  </code></pre>
+                <pre><code>
 // run.sh
 <span style="color: #888888">#!/usr/bin/env bash</span>
 <span style="color: #888888"># Start the pigpio daemon, which is required for GPIO control</span>

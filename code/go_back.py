@@ -98,13 +98,14 @@ def run_motor():
     # Main control loop
     while True:
         with lock:
+            # if color detection stop, stop the left motor and right motor
             if cd.stop:
                 lstop()
                 rstop()
                 break
-            category = cd.color_name
-            x = cd.cx
-            y = cd.cy
+            category = cd.color_name # Get current detected color
+            x = cd.cx # Get x-coordinate of detected object
+            y = cd.cy # Get y-coordinate of detected object
             approx = cd.approx
 
         if  category == cd.target:
@@ -112,14 +113,14 @@ def run_motor():
             # Calculate error and correction for centering
             object_center = x
             error = object_center - desired_center
-
+            # move to the right return place, stop both motor
             if abs(error) < dead_zone:
                 lstop()
                 rstop()
                 continue
-
+            
+            # Adjust to the right return place
             correction = proportional_gain * error / desired_center * 50
-
             base_speed = 80  # Base motor speed
             left_speed = base_speed + correction
             right_speed = base_speed - correction
