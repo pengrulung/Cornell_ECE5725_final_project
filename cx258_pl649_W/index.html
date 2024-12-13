@@ -243,6 +243,129 @@ int main(){
 }
               </code></pre>
               <pre><code>
+// color_detect.py
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">cv2</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">numpy</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">np</span>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">threading</span>
+<span style="color: #888888"># from server_color import data</span>
+
+stop <span style="color: #333333">=</span> <span style="color: #007020">False</span>
+cap <span style="color: #333333">=</span> <span style="color: #007020">None</span> <span style="color: #888888"># Video capture object</span>
+lock <span style="color: #333333">=</span> threading<span style="color: #333333">.</span>Lock()
+color_name <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39;&#39;</span> <span style="color: #888888"># Detected color name</span>
+cx <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span> 
+cy <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span>
+approx <span style="color: #333333">=</span> [] <span style="color: #888888"># Approximated contour points for the detected cube</span>
+target <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39;Blue&#39;</span>
+target_pos <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">305</span> <span style="color: #888888"># Y-coordinate threshold to trigger a stop</span>
+step_stop <span style="color: #333333">=</span> <span style="color: #007020">False</span>
+
+<span style="color: #888888"># New variables for threshold filtering</span>
+enable_threshold_filter <span style="color: #333333">=</span> <span style="color: #007020">False</span>
+min_y_threshold <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">130</span>
+
+<span style="color: #888888"># Define HSV color ranges for seven different colors</span>
+color_ranges <span style="color: #333333">=</span> {
+    <span style="background-color: #fff0f0">&quot;Green&quot;</span>: ([<span style="color: #0000DD; font-weight: bold">36</span>, <span style="color: #0000DD; font-weight: bold">25</span>, <span style="color: #0000DD; font-weight: bold">25</span>], [<span style="color: #0000DD; font-weight: bold">86</span>, <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">255</span>]),
+    <span style="background-color: #fff0f0">&quot;Blue&quot;</span>: ([<span style="color: #0000DD; font-weight: bold">94</span>, <span style="color: #0000DD; font-weight: bold">80</span>, <span style="color: #0000DD; font-weight: bold">2</span>], [<span style="color: #0000DD; font-weight: bold">126</span>, <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">255</span>]),
+    <span style="background-color: #fff0f0">&quot;Yellow&quot;</span>: ([<span style="color: #0000DD; font-weight: bold">20</span>, <span style="color: #0000DD; font-weight: bold">80</span>, <span style="color: #0000DD; font-weight: bold">80</span>], [<span style="color: #0000DD; font-weight: bold">30</span>, <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">255</span>]),
+    <span style="background-color: #fff0f0">&quot;Orange&quot;</span>: ([<span style="color: #0000DD; font-weight: bold">3</span>, <span style="color: #0000DD; font-weight: bold">80</span>, <span style="color: #0000DD; font-weight: bold">100</span>], [<span style="color: #0000DD; font-weight: bold">12</span>, <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">255</span>]),
+    <span style="background-color: #fff0f0">&quot;Purple&quot;</span>: ([<span style="color: #0000DD; font-weight: bold">130</span>, <span style="color: #0000DD; font-weight: bold">50</span>, <span style="color: #0000DD; font-weight: bold">50</span>], [<span style="color: #0000DD; font-weight: bold">160</span>, <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">255</span>]),
+    <span style="background-color: #fff0f0">&quot;Cyan&quot;</span>: ([<span style="color: #0000DD; font-weight: bold">85</span>, <span style="color: #0000DD; font-weight: bold">100</span>, <span style="color: #0000DD; font-weight: bold">100</span>], [<span style="color: #0000DD; font-weight: bold">95</span>, <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">255</span>])
+}
+
+<span style="color: #888888"># Function to find and identify color cubes in a frame</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">find_color_cubes</span>(frame):
+    <span style="color: #888888"># Convert the frame to HSV color space</span>
+    hsv_frame <span style="color: #333333">=</span> cv2<span style="color: #333333">.</span>cvtColor(frame, cv2<span style="color: #333333">.</span>COLOR_BGR2HSV)
+    <span style="color: #888888"># Loop through each defined color range</span>
+    <span style="color: #008800; font-weight: bold">for</span> c_name, (lower, upper) <span style="color: #000000; font-weight: bold">in</span> color_ranges<span style="color: #333333">.</span>items():
+        lower_bound <span style="color: #333333">=</span> np<span style="color: #333333">.</span>array(lower, dtype<span style="color: #333333">=</span>np<span style="color: #333333">.</span>uint8)
+        upper_bound <span style="color: #333333">=</span> np<span style="color: #333333">.</span>array(upper, dtype<span style="color: #333333">=</span>np<span style="color: #333333">.</span>uint8)
+
+        <span style="color: #888888"># Create a binary mask where color is detected</span>
+        mask <span style="color: #333333">=</span> cv2<span style="color: #333333">.</span>inRange(hsv_frame, lower_bound, upper_bound)
+        mask <span style="color: #333333">=</span> cv2<span style="color: #333333">.</span>erode(mask, <span style="color: #007020">None</span>, iterations<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">2</span>) <span style="color: #888888"># Remove noise</span>
+        mask <span style="color: #333333">=</span> cv2<span style="color: #333333">.</span>dilate(mask, <span style="color: #007020">None</span>, iterations<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">2</span>) <span style="color: #888888"># Enhance detected regions</span>
+
+        <span style="color: #888888"># Find contours in the mask</span>
+        contours, _ <span style="color: #333333">=</span> cv2<span style="color: #333333">.</span>findContours(mask, cv2<span style="color: #333333">.</span>RETR_EXTERNAL, cv2<span style="color: #333333">.</span>CHAIN_APPROX_SIMPLE)
+
+        <span style="color: #008800; font-weight: bold">for</span> contour <span style="color: #000000; font-weight: bold">in</span> contours:
+            area <span style="color: #333333">=</span> cv2<span style="color: #333333">.</span>contourArea(contour)
+            <span style="color: #008800; font-weight: bold">if</span> area <span style="color: #333333">&gt;</span> <span style="color: #0000DD; font-weight: bold">300</span>:  <span style="color: #888888"># Adjust area threshold as needed</span>
+                <span style="color: #888888"># Approximate the contour&#39;s shape</span>
+                epsilon <span style="color: #333333">=</span> <span style="color: #6600EE; font-weight: bold">0.02</span> <span style="color: #333333">*</span> cv2<span style="color: #333333">.</span>arcLength(contour, <span style="color: #007020">True</span>)
+                approx_pts <span style="color: #333333">=</span> cv2<span style="color: #333333">.</span>approxPolyDP(contour, epsilon, <span style="color: #007020">True</span>)
+
+                <span style="color: #888888"># Calculate the center of the contour</span>
+                M <span style="color: #333333">=</span> cv2<span style="color: #333333">.</span>moments(contour)
+                <span style="color: #008800; font-weight: bold">if</span> M[<span style="background-color: #fff0f0">&quot;m00&quot;</span>] <span style="color: #333333">!=</span> <span style="color: #0000DD; font-weight: bold">0</span>:
+                    cx_local <span style="color: #333333">=</span> <span style="color: #007020">int</span>(M[<span style="background-color: #fff0f0">&quot;m10&quot;</span>] <span style="color: #333333">/</span> M[<span style="background-color: #fff0f0">&quot;m00&quot;</span>])
+                    cy_local <span style="color: #333333">=</span> <span style="color: #007020">int</span>(M[<span style="background-color: #fff0f0">&quot;m01&quot;</span>] <span style="color: #333333">/</span> M[<span style="background-color: #fff0f0">&quot;m00&quot;</span>])
+                <span style="color: #008800; font-weight: bold">else</span>:
+                    cx_local, cy_local <span style="color: #333333">=</span> <span style="color: #0000DD; font-weight: bold">0</span>, <span style="color: #0000DD; font-weight: bold">0</span>
+
+                <span style="color: #888888"># Apply the threshold filter if enabled</span>
+                <span style="color: #008800; font-weight: bold">if</span> enable_threshold_filter <span style="color: #000000; font-weight: bold">and</span> cy_local <span style="color: #333333">&lt;</span> min_y_threshold:
+                    <span style="color: #888888"># Skip this contour since it&#39;s below the minimum y-threshold</span>
+                    <span style="color: #008800; font-weight: bold">continue</span>
+
+                <span style="color: #888888"># If the centroid is within the frame, print RGB values</span>
+                <span style="color: #008800; font-weight: bold">if</span> <span style="color: #0000DD; font-weight: bold">0</span> <span style="color: #333333">&lt;=</span> cx_local <span style="color: #333333">&lt;</span> frame<span style="color: #333333">.</span>shape[<span style="color: #0000DD; font-weight: bold">1</span>] <span style="color: #000000; font-weight: bold">and</span> <span style="color: #0000DD; font-weight: bold">0</span> <span style="color: #333333">&lt;=</span> cy_local <span style="color: #333333">&lt;</span> frame<span style="color: #333333">.</span>shape[<span style="color: #0000DD; font-weight: bold">0</span>]:
+                    rgb_values <span style="color: #333333">=</span> frame[cy_local, cx_local]
+                    <span style="color: #008800; font-weight: bold">print</span>(f<span style="background-color: #fff0f0">&quot;RGB values at ({cx_local}, {cy_local}): {rgb_values}&quot;</span>)
+
+                <span style="color: #888888"># Draw the contour and label on the frame</span>
+                cv2<span style="color: #333333">.</span>drawContours(frame, [approx_pts], <span style="color: #333333">-</span><span style="color: #0000DD; font-weight: bold">1</span>, (<span style="color: #0000DD; font-weight: bold">0</span>, <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">0</span>), <span style="color: #0000DD; font-weight: bold">2</span>)
+                cv2<span style="color: #333333">.</span>putText(frame, f<span style="background-color: #fff0f0">&quot;{c_name} Cube&quot;</span>, (cx_local, cy_local <span style="color: #333333">-</span> <span style="color: #0000DD; font-weight: bold">10</span>), cv2<span style="color: #333333">.</span>FONT_HERSHEY_SIMPLEX, <span style="color: #6600EE; font-weight: bold">0.5</span>, (<span style="color: #0000DD; font-weight: bold">0</span>, <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">0</span>), <span style="color: #0000DD; font-weight: bold">2</span>)
+                cv2<span style="color: #333333">.</span>circle(frame, (cx_local, cy_local), <span style="color: #0000DD; font-weight: bold">5</span>, (<span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">0</span>, <span style="color: #0000DD; font-weight: bold">0</span>), <span style="color: #333333">-</span><span style="color: #0000DD; font-weight: bold">1</span>)
+                <span style="color: #008800; font-weight: bold">print</span>(f<span style="background-color: #fff0f0">&quot;Detected {c_name} cube at position: ({cx_local}, {cy_local})&quot;</span>)
+
+                <span style="color: #008800; font-weight: bold">return</span> c_name, cx_local, cy_local, approx_pts <span style="color: #888888"># Return detected cube info</span>
+
+    <span style="color: #008800; font-weight: bold">return</span> <span style="color: #007020">None</span>, <span style="color: #0000DD; font-weight: bold">0</span>, <span style="color: #0000DD; font-weight: bold">0</span>, []  <span style="color: #888888"># Return default values if no color cube found</span>
+
+<span style="color: #888888"># Function for real-time color detection</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">color_detection</span>():
+    <span style="color: #008800; font-weight: bold">global</span> stop, cap, color_name, cx, cy, approx
+    cap <span style="color: #333333">=</span> cv2<span style="color: #333333">.</span>VideoCapture(<span style="color: #0000DD; font-weight: bold">0</span>)  <span style="color: #888888"># Open the default camera</span>
+
+    <span style="color: #008800; font-weight: bold">while</span> <span style="color: #007020">True</span>:
+        <span style="color: #888888"># print(&quot;Target::::::::::::::::::&quot;, target)</span>
+        ret, frame <span style="color: #333333">=</span> cap<span style="color: #333333">.</span>read()
+        <span style="color: #008800; font-weight: bold">if</span> <span style="color: #000000; font-weight: bold">not</span> ret:  <span style="color: #888888"># If frame capture fails, stop the program</span>
+            cd_stop()
+            <span style="color: #008800; font-weight: bold">break</span>
+        <span style="color: #888888"># Detect color cubes in the current frame</span>
+        color_name1, cx1, cy1, approx1 <span style="color: #333333">=</span> find_color_cubes(frame)
+        <span style="color: #888888"># Process the frame to find color cubes</span>
+        <span style="color: #008800; font-weight: bold">with</span> lock:
+            color_name <span style="color: #333333">=</span> color_name1
+            cx <span style="color: #333333">=</span> cx1
+            cy <span style="color: #333333">=</span> cy1
+            approx <span style="color: #333333">=</span> approx1
+            <span style="color: #888888"># Stop if &#39;q&#39; is pressed or the target conditions are met</span>
+            <span style="color: #008800; font-weight: bold">if</span> cv2<span style="color: #333333">.</span>waitKey(<span style="color: #0000DD; font-weight: bold">1</span>) <span style="color: #333333">&amp;</span> <span style="color: #005588; font-weight: bold">0xFF</span> <span style="color: #333333">==</span> <span style="color: #007020">ord</span>(<span style="background-color: #fff0f0">&#39;q&#39;</span>):
+                stop <span style="color: #333333">=</span> <span style="color: #007020">True</span>
+                cd_stop()
+                <span style="color: #008800; font-weight: bold">break</span>
+
+            <span style="color: #008800; font-weight: bold">if</span> cy <span style="color: #333333">&gt;</span> target_pos <span style="color: #000000; font-weight: bold">and</span> target <span style="color: #333333">==</span> color_name:
+                stop <span style="color: #333333">=</span> <span style="color: #007020">True</span>
+                cd_stop()
+                <span style="color: #008800; font-weight: bold">break</span>
+
+            <span style="color: #008800; font-weight: bold">if</span> cy <span style="color: #333333">&gt;</span> <span style="color: #0000DD; font-weight: bold">260</span> <span style="color: #000000; font-weight: bold">and</span> target <span style="color: #333333">==</span> color_name:
+                step_stop <span style="color: #333333">=</span> <span style="color: #007020">True</span>
+                
+<span style="color: #888888"># Function to release resources and close windows</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">cd_stop</span>():
+    <span style="color: #008800; font-weight: bold">global</span> cap
+    cap<span style="color: #333333">.</span>release()  <span style="color: #888888"># Release the video capture object</span>
+    cv2<span style="color: #333333">.</span>destroyAllWindows() <span style="color: #888888"># Close all OpenCV windows</span>
+              </code></pre>
+              <pre><code>
 //Server_color.py
 <span style="color: #0e84b5; font-weight: bold">import socket</span>
 <span style="color: #888888"># Function to handle receiving color data from a client</span>
@@ -277,7 +400,7 @@ int main(){
           </code></pre>
           <pre><code>
   //color_detect_send.py
-  <span style="color: #0e84b5; font-weight: bold">import socket</span> <span style="color: #888888"># For video capture and image processing</span>
+  <span style="color: #008800; font-weight: bold">import</span><span style="color: #0e84b5; font-weight: bold">socket</span> <span style="color: #888888"># For video capture and image processing</span>
   <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">numpy</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">np</span>
   <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">threading</span>
   <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">socket</span>
@@ -291,7 +414,7 @@ int main(){
   stop <span style="color: #333333">=</span> <span style="color: #007020">False</span> 
   cap <span style="color: #333333">=</span> <span style="color: #007020">None</span>
   lock <span style="color: #333333">=</span> threading<span style="color: #333333">.</span>Lock()
-  color_name <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39;&#39;</span>
+  color_name <span style="color: #333333">=</span> &#39;&#39;</span>
   
   <span style="color: #888888"># Server connection IP address and port number</span>
   HOST <span style="color: #333333">=</span> <span style="background-color: #fff0f0">&#39;10.49.240.92&#39;</span>
@@ -299,9 +422,9 @@ int main(){
   
   <span style="color: #888888"># Define HSV color ranges for different colors</span>
   color_ranges <span style="color: #333333">=</span> {
-      <span style="background-color: #fff0f0">&quot;Green&quot;</span>: ([<span style="color: #0000DD; font-weight: bold">45</span>, <span style="color: #0000DD; font-weight: bold">35</span>, <span style="color: #0000DD; font-weight: bold">35</span>], [<span style="color: #0000DD; font-weight: bold">75</span>, <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">255</span>]),    
-      <span style="background-color: #fff0f0">&quot;Blue&quot;</span>: ([<span style="color: #0000DD; font-weight: bold">105</span>, <span style="color: #0000DD; font-weight: bold">125</span>, <span style="color: #0000DD; font-weight: bold">125</span>], [<span style="color: #0000DD; font-weight: bold">135</span>, <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">255</span>]),  
-      <span style="background-color: #fff0f0">&quot;Yellow&quot;</span>: ([<span style="color: #0000DD; font-weight: bold">20</span>, <span style="color: #0000DD; font-weight: bold">180</span>, <span style="color: #0000DD; font-weight: bold">180</span>], [<span style="color: #0000DD; font-weight: bold">40</span>, <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">255</span>]), 
+    <span style="background-color: #fff0f0">&quot;Green&quot; </span>: ([<span style="color: #0000DD; font-weight: bold">45</span>, <span style="color: #0000DD; font-weight: bold">35</span>, <span style="color: #0000DD; font-weight: bold">35</span>], [<span style="color: #0000DD; font-weight: bold">75</span>, <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">255</span>]),    
+    <span style="background-color: #fff0f0">&quot;Blue&quot;</span>: ([<span style="color: #0000DD; font-weight: bold">105</span>, <span style="color: #0000DD; font-weight: bold">125</span>, <span style="color: #0000DD; font-weight: bold">125</span>], [<span style="color: #0000DD; font-weight: bold">135</span>, <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">255</span>]),  
+    <span style="background-color: #fff0f0">&quot;Yellow&quot;</span>: ([<span style="color: #0000DD; font-weight: bold">20</span>, <span style="color: #0000DD; font-weight: bold">180</span>, <span style="color: #0000DD; font-weight: bold">180</span>], [<span style="color: #0000DD; font-weight: bold">40</span>, <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">255</span>]), 
   }
   
   <span style="color: #888888"># Function to identify the main color in a frame</span>
@@ -399,6 +522,162 @@ int main(){
   <span style="color: #008800; font-weight: bold">finally</span>:
       GPIO<span style="color: #333333">.</span>cleanup() <span style="color: #888888"># Reset GPIO pins</span>
       cd_stop()  <span style="color: #888888"># Release camera and clean up resources</span>
+                </code></pre>
+                <pre><code>
+// arm_control.py
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">pigpio</span>
+  <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">time</span>
+  <span style="color: #888888"># Initialize pigpio and check connection</span>
+  pi <span style="color: #333333">=</span> pigpio<span style="color: #333333">.</span>pi()
+  <span style="color: #008800; font-weight: bold">if</span> <span style="color: #000000; font-weight: bold">not</span> pi<span style="color: #333333">.</span>connected:
+      <span style="color: #007020">exit</span>(<span style="background-color: #fff0f0">&quot;Failed to connect to pigpio daemon&quot;</span>) <span style="color: #888888"># Exit if unable to connect</span>
+  <span style="color: #888888"># Define the minimum duty cycles for each servo motor</span>
+  min_duties <span style="color: #333333">=</span> [<span style="color: #6600EE; font-weight: bold">4.3</span>, <span style="color: #6600EE; font-weight: bold">5.8</span>, <span style="color: #0000DD; font-weight: bold">4</span>, <span style="color: #0000DD; font-weight: bold">5</span>]
+  <span style="color: #888888"># Define specifications for each servo motor (pin numbers and pulse width ranges)</span>
+  servo_specs <span style="color: #333333">=</span> {
+      <span style="background-color: #fff0f0">&#39;base&#39;</span>: {
+          <span style="background-color: #fff0f0">&#39;pin&#39;</span>: <span style="color: #0000DD; font-weight: bold">12</span>,
+          <span style="background-color: #fff0f0">&#39;min_pw&#39;</span>: min_duties[<span style="color: #0000DD; font-weight: bold">0</span>]<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>,              <span style="color: #888888"># e.g. 4 * 200 = 800µs</span>
+          <span style="background-color: #fff0f0">&#39;max_pw&#39;</span>: (min_duties[<span style="color: #0000DD; font-weight: bold">0</span>]<span style="color: #333333">+</span><span style="color: #6600EE; font-weight: bold">8.5</span>)<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>         <span style="color: #888888"># e.g. (4+8.5)*200 = 2500µs</span>
+      },
+      <span style="background-color: #fff0f0">&#39;shoulder&#39;</span>: {
+          <span style="background-color: #fff0f0">&#39;pin&#39;</span>: <span style="color: #0000DD; font-weight: bold">13</span>,
+          <span style="background-color: #fff0f0">&#39;min_pw&#39;</span>: min_duties[<span style="color: #0000DD; font-weight: bold">1</span>]<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>,              <span style="color: #888888"># 5.5 * 200 = 1100µs</span>
+          <span style="background-color: #fff0f0">&#39;max_pw&#39;</span>: (min_duties[<span style="color: #0000DD; font-weight: bold">1</span>]<span style="color: #333333">+</span><span style="color: #6600EE; font-weight: bold">5.6</span>)<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>         <span style="color: #888888"># (5.5+5.6)*200 = 2220µs</span>
+      },
+      <span style="background-color: #fff0f0">&#39;elbow&#39;</span>: {
+          <span style="background-color: #fff0f0">&#39;pin&#39;</span>: <span style="color: #0000DD; font-weight: bold">26</span>,
+          <span style="background-color: #fff0f0">&#39;min_pw&#39;</span>: min_duties[<span style="color: #0000DD; font-weight: bold">2</span>]<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>,              <span style="color: #888888"># 4 * 200 = 800µs</span>
+          <span style="background-color: #fff0f0">&#39;max_pw&#39;</span>: (min_duties[<span style="color: #0000DD; font-weight: bold">2</span>]<span style="color: #333333">+</span><span style="color: #6600EE; font-weight: bold">3.4</span>)<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>         <span style="color: #888888"># (4+3.4)*200 = 1480µs</span>
+      },
+      <span style="background-color: #fff0f0">&#39;wrist&#39;</span>: {
+          <span style="background-color: #fff0f0">&#39;pin&#39;</span>: <span style="color: #0000DD; font-weight: bold">4</span>,
+          <span style="background-color: #fff0f0">&#39;min_pw&#39;</span>: min_duties[<span style="color: #0000DD; font-weight: bold">3</span>]<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>,              <span style="color: #888888"># 4.5 * 200 = 900µs</span>
+          <span style="background-color: #fff0f0">&#39;max_pw&#39;</span>: (min_duties[<span style="color: #0000DD; font-weight: bold">3</span>]<span style="color: #333333">+</span><span style="color: #6600EE; font-weight: bold">1.7</span>)<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>         <span style="color: #888888"># (4.5+1.7)*200 = 1240µs</span>
+      }
+  }
+  <span style="color: #888888"># Initialize all servo pins and set them to their default position (pulse width = 0)</span>
+  <span style="color: #008800; font-weight: bold">for</span> joint, specs <span style="color: #000000; font-weight: bold">in</span> servo_specs<span style="color: #333333">.</span>items():
+      pi<span style="color: #333333">.</span>set_mode(specs[<span style="background-color: #fff0f0">&#39;pin&#39;</span>], pigpio<span style="color: #333333">.</span>OUTPUT) <span style="color: #888888"># Set pin mode to OUTPUT</span>
+      pi<span style="color: #333333">.</span>set_servo_pulsewidth(specs[<span style="background-color: #fff0f0">&#39;pin&#39;</span>], <span style="color: #0000DD; font-weight: bold">0</span>)
+      
+  <span style="color: #888888"># Function to generate a range of float values with a specified step</span>
+  <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">frange</span>(start, stop, step):
+      r <span style="color: #333333">=</span> start
+      <span style="color: #008800; font-weight: bold">if</span> step <span style="color: #333333">&gt;</span> <span style="color: #0000DD; font-weight: bold">0</span>:
+          <span style="color: #008800; font-weight: bold">while</span> r <span style="color: #333333">&lt;</span> stop:
+              <span style="color: #008800; font-weight: bold">yield</span> r
+              r <span style="color: #333333">+=</span> step
+      <span style="color: #008800; font-weight: bold">else</span>:
+          <span style="color: #008800; font-weight: bold">while</span> r <span style="color: #333333">&gt;</span> stop:
+              <span style="color: #008800; font-weight: bold">yield</span> r
+              r <span style="color: #333333">+=</span> step
+              
+  <span style="color: #888888"># Function to move a servo motor to a target pulse width</span>
+  <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">move_servo_slowly</span>(pin, start_pw, end_pw, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">25</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.1</span>):
+      <span style="color: #888888"># Determine the movement based on start and end pulse width</span>
+      <span style="color: #008800; font-weight: bold">if</span> start_pw <span style="color: #333333">&lt;</span> end_pw:
+          pw_range <span style="color: #333333">=</span> frange(start_pw, end_pw, step)
+      <span style="color: #008800; font-weight: bold">else</span>:
+          pw_range <span style="color: #333333">=</span> frange(start_pw, end_pw, <span style="color: #333333">-</span>step)
+      <span style="color: #888888"># Gradually adjust the pulse width and delay to allow smooth movement</span>
+      <span style="color: #008800; font-weight: bold">for</span> pw <span style="color: #000000; font-weight: bold">in</span> pw_range:
+          pi<span style="color: #333333">.</span>set_servo_pulsewidth(pin, pw)
+          time<span style="color: #333333">.</span>sleep(delay)
+      pi<span style="color: #333333">.</span>set_servo_pulsewidth(pin, end_pw)
+      
+  <span style="color: #888888"># Function to move servos to their default (home) positions</span>
+  <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">default</span>():
+      <span style="color: #888888"># set default points for each servo</span>
+      sh_mid <span style="color: #333333">=</span> ((servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>) <span style="color: #333333">-</span> (<span style="color: #6600EE; font-weight: bold">0.5</span><span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>)
+      ba_mid <span style="color: #333333">=</span> ((servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>)
+      el_mid <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>])  
+      <span style="color: #888888"># Move each servo to its default position</span>
+      pi<span style="color: #333333">.</span>set_servo_pulsewidth(servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], sh_mid)
+      time<span style="color: #333333">.</span>sleep(<span style="color: #0000DD; font-weight: bold">1</span>)
+      pi<span style="color: #333333">.</span>set_servo_pulsewidth(servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], <span style="color: #0000DD; font-weight: bold">0</span>)
+  
+      pi<span style="color: #333333">.</span>set_servo_pulsewidth(servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], ba_mid)
+      time<span style="color: #333333">.</span>sleep(<span style="color: #0000DD; font-weight: bold">1</span>)
+      pi<span style="color: #333333">.</span>set_servo_pulsewidth(servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], <span style="color: #0000DD; font-weight: bold">0</span>)
+  
+      pi<span style="color: #333333">.</span>set_servo_pulsewidth(servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], el_mid)
+      time<span style="color: #333333">.</span>sleep(<span style="color: #0000DD; font-weight: bold">1</span>)
+      pi<span style="color: #333333">.</span>set_servo_pulsewidth(servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], <span style="color: #0000DD; font-weight: bold">0</span>)
+      
+  <span style="color: #888888"># Function to perform a &quot;pick&quot; action using the robotic arm</span>
+  <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">pick</span>(x, y):
+      <span style="color: #888888"># Calculate initial midpoints for each joint</span>
+      wr_mid <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
+      ba_mid <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
+      sh_mid <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
+      el_mid <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
+      <span style="color: #888888"># Move wrist servo to target position</span>
+      wr_target <span style="color: #333333">=</span> servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>]
+      move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], wr_mid, wr_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
+      wr_mid <span style="color: #333333">=</span> wr_target
+      <span style="color: #888888"># Move base servo to calculated target position based on `x(find_color_cube)` input</span>
+      ba_target <span style="color: #333333">=</span> ba_mid <span style="color: #333333">+</span> (<span style="color: #007020">float</span>(<span style="color: #007020">int</span>((<span style="color: #0000DD; font-weight: bold">315</span> <span style="color: #333333">-</span> x) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">25</span>)) <span style="color: #333333">*</span> <span style="color: #6600EE; font-weight: bold">0.18</span> <span style="color: #333333">*</span> <span style="color: #0000DD; font-weight: bold">200</span>)
+      move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], ba_mid, ba_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
+      ba_mid <span style="color: #333333">=</span> ba_target
+      <span style="color: #888888"># Move elbow servo to its minimum position</span>
+      el_target <span style="color: #333333">=</span> servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]
+      move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], el_mid, el_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
+      el_mid <span style="color: #333333">=</span> el_target
+      <span style="color: #888888"># Move shoulder servo to its caculated target</span>
+      sh_target <span style="color: #333333">=</span> servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> (<span style="color: #6600EE; font-weight: bold">0.2</span> <span style="color: #333333">*</span> <span style="color: #0000DD; font-weight: bold">200</span>) <span style="color: #888888"># 0.2 duty ~ 40µs step</span>
+      move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], sh_mid, sh_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">20</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.02</span>)
+      sh_mid <span style="color: #333333">=</span> sh_target
+      <span style="color: #888888"># Move elbow servo to its caculated target</span>
+      el_target <span style="color: #333333">=</span> servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>] <span style="color: #333333">+</span> <span style="color: #007020">float</span>(<span style="color: #007020">int</span>((y <span style="color: #333333">-</span> <span style="color: #0000DD; font-weight: bold">350</span>) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">25</span>)) <span style="color: #333333">*</span> (<span style="color: #6600EE; font-weight: bold">0.2</span> <span style="color: #333333">*</span> <span style="color: #0000DD; font-weight: bold">200</span>)
+      move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], el_mid, el_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
+      el_mid <span style="color: #333333">=</span> el_target
+      <span style="color: #888888"># Move wrist servo to its caculated target</span>
+      wr_target <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
+      move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], wr_mid, wr_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
+      wr_mid <span style="color: #333333">=</span> wr_target
+      <span style="color: #888888"># Move shoulder servo to its caculated target</span>
+      sh_target <span style="color: #333333">=</span> ((servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>) <span style="color: #333333">-</span> (<span style="color: #6600EE; font-weight: bold">0.5</span><span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>)
+      move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], sh_mid, sh_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">20</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.02</span>)
+      sh_mid <span style="color: #333333">=</span> sh_target
+      <span style="color: #888888"># Move elbow servo to its caculated target</span>
+      el_target <span style="color: #333333">=</span> servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> (<span style="color: #0000DD; font-weight: bold">1</span><span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>)
+      move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], el_mid, el_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
+      el_mid <span style="color: #333333">=</span> el_target
+      <span style="color: #888888"># Move base servo to its caculated target</span>
+      ba_target <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
+      move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], ba_mid, ba_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
+      ba_mid <span style="color: #333333">=</span> ba_target
+      
+  <span style="color: #888888"># Function to perform returning item to a specified position)</span>
+  <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">release</span>(x, y):
+      ba_mid <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
+      sh_mid <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
+  
+      ba_target <span style="color: #333333">=</span> ba_mid <span style="color: #333333">+</span> <span style="color: #007020">float</span>(<span style="color: #007020">int</span>((<span style="color: #0000DD; font-weight: bold">300</span> <span style="color: #333333">-</span> x) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">25</span>)) <span style="color: #333333">*</span> (<span style="color: #6600EE; font-weight: bold">0.2</span> <span style="color: #333333">*</span> <span style="color: #0000DD; font-weight: bold">200</span>)
+      move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], ba_mid, ba_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
+      ba_mid <span style="color: #333333">=</span> ba_target
+  
+      sh_target <span style="color: #333333">=</span> servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]
+      move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], sh_mid, sh_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
+      sh_mid <span style="color: #333333">=</span> sh_target
+  
+      pi<span style="color: #333333">.</span>set_servo_pulsewidth(servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> (<span style="color: #6600EE; font-weight: bold">0.2</span><span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>))
+      time<span style="color: #333333">.</span>sleep(<span style="color: #0000DD; font-weight: bold">1</span>)
+      pi<span style="color: #333333">.</span>set_servo_pulsewidth(servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], <span style="color: #0000DD; font-weight: bold">0</span>)
+  <span style="color: #888888"># Function to move servos to their default (home) positions when returing the object</span>
+  <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">go_back_default</span>():
+      <span style="color: #888888"># Calculate the midpoint of the pulse width range for the shoulder servo</span>
+      sh_mid <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
+      sh_target <span style="color: #333333">=</span> sh_mid <span style="color: #333333">-</span> (<span style="color: #6600EE; font-weight: bold">0.5</span><span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>)
+      <span style="color: #888888"># Gradually move the shoulder servo to the calculated target position</span>
+      move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], sh_mid, sh_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
+        
+  <span style="color: #888888"># Function to safely turn off all servo signals and clean up</span>
+  <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">ac_quit</span>():
+      <span style="color: #008800; font-weight: bold">for</span> joint, specs <span style="color: #000000; font-weight: bold">in</span> servo_specs<span style="color: #333333">.</span>items():
+          pi<span style="color: #333333">.</span>set_servo_pulsewidth(specs[<span style="background-color: #fff0f0">&#39;pin&#39;</span>], <span style="color: #0000DD; font-weight: bold">0</span>)
+      pi<span style="color: #333333">.</span>stop()  <span style="color: #888888"># Stop pigpio daemon</span>
                 </code></pre>
                 <pre><code>
 // run.sh
