@@ -102,8 +102,12 @@
               <h2>Design</h2>
               <h3 style="text-align: center; padding: 0px 150px;">Hardware Design</h3>
               <h4 style="text-align: center; padding: 0px 150px;">Glove Design</h4>
-              <p style="text-align: justify; padding: 0px 150px;">We have mounted the Raspberry Pi 4 and a camera onto the glove. Also, we implemented a button on the Raspberry Pi 4 to control the camera. Using soldering, we connected the button and a 1kΩ resistor, wiring them to GPIO pin 17 and Ground. This setup was thoroughly tested to ensure both the hardware’s stability and the responsiveness of the button control.</p>
-              <h4 style="text-align: center; padding: 0px 150px;">Robot Design</h4>
+              <div style="display: flex; align-items: center;">
+            <img class="img-rounded" src="pics/glove.jpg" alt="Generic placeholder image" width="223" height="240" style="margin-right: 35px; margin-left: 25px;">
+    <p style="text-align: justify; padding: 0px; max-width: 700px;"> We have mounted the Raspberry Pi 4 and a camera onto the glove. Also, we implemented a button on the Raspberry Pi 4 to control the camera. Using soldering, we connected the button and a 1kΩ resistor, wiring them to GPIO pin 17 and Ground. This setup was thoroughly tested to ensure both the hardware’s stability and the responsiveness of the button control.
+    </p>
+ </div>
+            <h4 style="text-align: center; padding: 0px 150px;">Robot Design</h4>
               <p style="text-align: justify; padding: 0px 150px;">In our robot design, we utilize a Raspberry Pi 4 to control the robot's movements and arm. The robot is equipped with two servos for controlling the arm and two servos for robot movement. The servos are connected to specific GPIO pins on the Raspberry Pi, which are used to send control signals for precise movement. The Raspberry Pi acts as the central control unit, coordinating the servos' actions based on the input from the camera-equipped glove. Our GPIO pin mappings are shown in the table below.</p> 
               <h4 style="text-align: center; padding: 0px 150px;">Table 1: RaspberryPi GPIO Pin to Signal Mapping</h4>
               <table style="width: 100%; text-align: center; padding: 0px 150px; border-collapse: collapse;">
