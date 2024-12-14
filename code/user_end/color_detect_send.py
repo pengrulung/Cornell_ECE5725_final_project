@@ -1,3 +1,8 @@
+# Authors:  Chenxin Xun (cx258)
+#           Pengru Lung (pl649)
+# Final project, Monday Section
+# 2024-12-13
+
 import cv2  # For video capture and image processing
 import numpy as np
 import threading

@@ -1,3 +1,8 @@
+# Authors:  Chenxin Xun (cx258)
+#           Pengru Lung (pl649)
+# Final project, Monday Section
+# 2024-12-13
+
 import socket
 
 # Function to handle receiving color data from a client

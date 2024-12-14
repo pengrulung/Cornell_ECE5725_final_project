@@ -1,3 +1,8 @@
+# Authors:  Chenxin Xun (cx258)
+#           Pengru Lung (pl649)
+# Final project, Monday Section
+# 2024-12-13
+
 import cv2
 import numpy as np
 import threading

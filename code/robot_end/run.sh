@@ -1,3 +1,8 @@
+# Authors:  Chenxin Xun (cx258)
+#           Pengru Lung (pl649)
+# Final project, Monday Section
+# 2024-12-13
+
 #!/usr/bin/env bash
 # Start the pigpio daemon, which is required for GPIO control
 sudo pigpiod

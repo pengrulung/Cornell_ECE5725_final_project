@@ -112,23 +112,23 @@
                   <th style="border-bottom: 1px solid #D3D3D3; padding: 8px; text-align: center;">Signal Name</th>
                   <tr>
                     <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 4</td>
-                    <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
+                    <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">wrist control</td>
                   </tr>
                   <tr>
                   <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 5</td>
-                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">Left motor control pin</td>
                 </tr>
                 <tr>
                   <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 6</td>
-                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">Left motor control pin</td>
                 </tr>
                 <tr>
                   <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 12</td>
-                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">base conteol</td>
                 </tr>
                 <tr>
                   <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 13</td>
-                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">shoulder control</td>
                 </tr>
                 <tr>
                   <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 16</td>
@@ -140,18 +140,14 @@
                 </tr>
                 <tr>
                   <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 20</td>
-                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">Right motor control pin</td>
                 </tr>
                 <tr>
                   <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 21</td>
-                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
-                  <tr>
-                    <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 23</td>
-                    <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
-                  </tr>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">Right motor control pin</td>
                   <tr>
                     <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 26</td>
-                    <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;"></td>
+                    <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">elbow control</td>
               </table>   
               <h3 style="text-align: center; padding: 0px 150px;">Software Design</h3>
               <h4 style="text-align: center; padding: 0px 150px;">Glove Design</h4>
@@ -160,9 +156,11 @@
               <p style="text-align: justify; padding: 0px 150px;">2. System Integration: A button is used to trigger the color detection process, allowing the user to initiate the system when desired. The system utilizes Wi-Fi communication to transmit the detected color information. Once the color is detected, the software sends the color information via a socket connection over Wi-Fi to a remote server. This ensures the robot is informed of the object’s color for further action in real-time.</p>
               <h4 style="text-align: center; padding: 0px 150px;">Robot Design</h4>
               <p style="text-align: justify; padding: 0px 150px;">1. Server: The robot's communication system uses Wi-Fi for seamless data exchange with the camera-equipped glove. The robot acts as a server, listening for connections on a specific IP and port, while the glove connects as a client. Upon receiving signals from the glove, the server decodes the data and triggers actions based on the detected color. This setup ensures real-time, efficient coordination between the glove and the robot. </p> 
-              <p style="text-align: justify; padding: 0px 150px;">2. Arm control</p>
-              <p style="text-align: justify; padding: 0px 150px;">3. Motor control</p>
-              <p style="text-align: justify; padding: 0px 150px;">2. Integration</p>
+              <p style="text-align: justify; padding: 0px 150px;">2. Arm control: This code implements a robotic arm control system using the pigpio library on a Raspberry Pi, with functions to smoothly operate servo motors. Each servo (base, shoulder, elbow, and wrist) is configured with specific GPIO pins and defined pulse width ranges for movement. A helper function ensures gradual transitions between positions to prevent jerky motions. High-level functions like default, pick, and release coordinate multiple servo movements to perform actions such as returning to a home position, picking up objects at specified coordinates, and placing them down. The system also includes a cleanup function to safely stop the servos and disconnect from the pigpio daemon. This structured approach provides precise and smooth control over the robotic arm’s movements.</p>
+              <p style="text-align: justify; padding: 0px 150px;">3. Color detect: This code implements real-time color-based object detection using OpenCV. It uses a webcam feed to identify and track colored cubes within a specified color range (e.g., Green, Blue, Yellow). The HSV color space is used to define thresholds for six colors, and contours are extracted from binary masks to locate the objects. The centroid and approximate shape of each detected object are calculated and displayed on the video feed, along with HSV values at the object's center. A threshold filter can optionally be enabled to ignore objects below a minimum Y-coordinate. The program uses threading to handle shared variables like the detected color and object position, ensuring thread-safe updates. If a detected object matches the target color and crosses a set Y-coordinate threshold, the system stops further detection and releases resources, such as the webcam feed and OpenCV windows. This program is useful for applications like object tracking and robotic control based on visual inputs.</p>
+              <p style="text-align: justify; padding: 0px 150px;">4. Motor control: This code integrates robotic motor control, computer vision, and server communication to detect a target object by its color, track it using motors, and manipulate it with a robotic arm. It uses the pygame library for GUI initialization, RPi.GPIO for motor control, and a custom module for color detection. The system fetches the target color from a server, calibrates motor control for specific positions, and uses threading to run motor control and color detection simultaneously. The motor control logic employs proportional control to align the motors with the target's position. Once the object is detected, the robotic arm picks it up and can later release it at a specified location. Robust exception handling ensures a safe cleanup of resources, stopping motors and color detection on exit. This framework provides a synchronized and automated robotic system for object detection and manipulation.</p>
+              <p style="text-align: justify; padding: 0px 150px;">5. Go back: This code integrates motor control, robotic arm manipulation, and real-time object tracking to detect and interact with a target object based on its color. It configures GPIO pins on a Raspberry Pi to control two motors and uses pulse-width modulation (PWM) to regulate motor speed. A proportional control algorithm aligns the motors with the target's X-coordinate, enabling smooth tracking. The system uses threading to run motor control and color detection simultaneously, ensuring efficient multitasking. The target color and position are dynamically set, and once the object is detected and centered, the robotic arm manipulates it using predefined movements. A clean-up process ensures motors and detection systems are stopped safely upon program completion or interruption. This framework provides an automated solution for detecting, tracking, and interacting with objects in robotic applications.</p>
+              <p style="text-align: justify; padding: 0px 150px;">6. run (Integration): This bash script sets up a continuous loop to manage the execution of two Python scripts (motor_control.py and go_back.py) for controlling a robotic system. It starts by launching the pigpiod daemon, which is essential for managing GPIO operations on a Raspberry Pi. The loop ensures that the motor control script runs first, followed by a script to reset or reposition the robotic components (go-back script). An optional delay can be added between iterations for system stability. This script provides a simple and automated way to repeatedly execute the required control routines for the robotic system</p>
 
       </div>
 
@@ -170,8 +168,18 @@
 
       <div style="text-align:center;">
               <h2>Drawings</h2>
-              <p style="text-align: left;padding: 0px 30px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum lorem nulla, consectetur at leo vel, pretium bibendum nisl. Cras blandit quam a enim ultrices, eu convallis enim posuere. Donec eleifend enim sed purus consectetur, vitae cursus lectus varius. Vivamus consectetur felis nec est venenatis posuere. Phasellus vitae aliquet erat. In laoreet lacinia mollis. Quisque iaculis nisl fermentum pharetra lobortis. Donec rhoncus dui sem, ac molestie leo tristique vel. Phasellus in nibh feugiat, fringilla lectus in, elementum magna. Etiam quis dui condimentum, tempus ex in, dapibus est. Cras ut congue augue. Donec ac enim ex. Ut id tristique risus, vel porttitor quam. Sed ultricies enim eu nibh porttitor, vel sodales enim feugiat. Fusce volutpat venenatis magna ac ultrices. Curabitur eget urna ut nulla mattis convallis non eu diam.</p>
       </div>
+
+      <div class="row" style="text-align:center;">
+        <div style="text-align:center;">
+            <img class="img-rounded" src="pics/flow.png" alt="Generic placeholder image" style="width:80%;">
+            <h4>Flow chart</h4>
+        </div>
+        <div style="text-align:center;">
+          <img class="img-rounded" src="pics/drawing.jpg" alt="Generic placeholder image" style="width:80%;">
+          <h4>hand drawing</h4>
+      </div>
+    </div>
 
     <hr id='testing'>
 
@@ -237,13 +245,17 @@
       <div class="row">
               <h2>Code Appendix</h2>
               <pre><code>
-// Hello World.c
+<!-- // Hello World.c
 int main(){
   printf("Hello World.\n");
 }
               </code></pre>
-              <pre><code>
+              <pre><code> -->
 // color_detect.py
+<span style="color: #888888"># Authors:  Chenxin Xun (cx258)</span>
+<span style="color: #888888">#           Pengru Lung (pl649)</span>
+<span style="color: #888888"># Final project, Monday Section</span>
+<span style="color: #888888"># 2024-12-13</span>
 <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">cv2</span>
 <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">numpy</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">np</span>
 <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">threading</span>
@@ -367,6 +379,10 @@ color_ranges <span style="color: #333333">=</span> {
               </code></pre>
               <pre><code>
 //Server_color.py
+<span style="color: #888888"># Authors:  Chenxin Xun (cx258)</span>
+<span style="color: #888888">#           Pengru Lung (pl649)</span>
+<span style="color: #888888"># Final project, Monday Section</span>
+<span style="color: #888888"># 2024-12-13</span>
 <span style="color: #0e84b5; font-weight: bold">import socket</span>
 <span style="color: #888888"># Function to handle receiving color data from a client</span>
 <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">sending_color</span>():
@@ -400,6 +416,10 @@ color_ranges <span style="color: #333333">=</span> {
           </code></pre>
           <pre><code>
   //color_detect_send.py
+  <span style="color: #888888"># Authors:  Chenxin Xun (cx258)</span>
+  <span style="color: #888888">#           Pengru Lung (pl649)</span>
+  <span style="color: #888888"># Final project, Monday Section</span>
+  <span style="color: #888888"># 2024-12-13</span>
   <span style="color: #008800; font-weight: bold">import</span><span style="color: #0e84b5; font-weight: bold">socket</span> <span style="color: #888888"># For video capture and image processing</span>
   <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">numpy</span> <span style="color: #008800; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">np</span>
   <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">threading</span>
@@ -525,6 +545,10 @@ color_ranges <span style="color: #333333">=</span> {
                 </code></pre>
                 <pre><code>
 // arm_control.py
+<span style="color: #888888"># Authors:  Chenxin Xun (cx258)</span>
+<span style="color: #888888">#           Pengru Lung (pl649)</span>
+<span style="color: #888888"># Final project, Monday Section</span>
+<span style="color: #888888"># 2024-12-13</span>
 <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">pigpio</span>
   <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">time</span>
   <span style="color: #888888"># Initialize pigpio and check connection</span>
@@ -680,7 +704,383 @@ color_ranges <span style="color: #333333">=</span> {
       pi<span style="color: #333333">.</span>stop()  <span style="color: #888888"># Stop pigpio daemon</span>
                 </code></pre>
                 <pre><code>
+
+\\motor_control.py
+<span style="color: #888888"># Authors:  Chenxin Xun (cx258)</span>
+<span style="color: #888888">#           Pengru Lung (pl649)</span>
+<span style="color: #888888"># Final project, Monday Section</span>
+<span style="color: #888888"># 2024-12-13</span>
+
+<span style="color: #008800; font-weight: bold"># Import necessary libraries</span>
+<span style="color: #008800; font-weight: bold">import</span> pygame, pigame  <span style="color: #888888"># pygame for GUI handling, pigame possibly a typo (should be pygame)</span>
+<span style="color: #008800; font-weight: bold">from</span> pygame.locals <span style="color: #008800; font-weight: bold">import</span> *
+<span style="color: #008800; font-weight: bold">import</span> os
+<span style="color: #008800; font-weight: bold">import</span> RPi._GPIO <span style="color: #008800; font-weight: bold">as</span> GPIO  <span style="color: #888888"># GPIO library for Raspberry Pi</span>
+<span style="color: #008800; font-weight: bold">import</span> sys
+<span style="color: #008800; font-weight: bold">from</span> time <span style="color: #008800; font-weight: bold">import</span> sleep
+<span style="color: #008800; font-weight: bold">import</span> time
+<span style="color: #008800; font-weight: bold">import</span> threading  <span style="color: #888888"># For multithreading support</span>
+<span style="color: #008800; font-weight: bold">import</span> color_detect <span style="color: #008800; font-weight: bold">as</span> cd  <span style="color: #888888"># Custom module for color detection</span>
+<span style="color: #008800; font-weight: bold">import</span> math
+<span style="color: #008800; font-weight: bold">import</span> arm_control <span style="color: #008800; font-weight: bold">as</span> ac  <span style="color: #888888"># Custom module for robotic arm control</span>
+<span style="color: #008800; font-weight: bold">import</span> cv2  <span style="color: #888888"># OpenCV for computer vision tasks</span>
+<span style="color: #008800; font-weight: bold">import</span> server_color <span style="color: #008800; font-weight: bold">as</span> sc  <span style="color: #888888"># Custom module for server-based color communication</span>
+
+<span style="color: #008800; font-weight: bold"># GPIO pin setup for Raspberry Pi</span>
+GPIO.setmode(GPIO.BCM)  <span style="color: #888888"># Use Broadcom GPIO numbering</span>
+GPIO.setup(19, GPIO.OUT)  <span style="color: #888888"># Motor PWM pin</span>
+GPIO.setup(5, GPIO.OUT)  <span style="color: #888888"># Left motor control pin</span>
+GPIO.setup(6, GPIO.OUT)  <span style="color: #888888"># Left motor control pin</span>
+GPIO.setup(16, GPIO.OUT)  <span style="color: #888888"># Motor PWM pin</span>
+GPIO.setup(20, GPIO.OUT)  <span style="color: #888888"># Right motor control pin</span>
+GPIO.setup(21, GPIO.OUT)  <span style="color: #888888"># Right motor control pin</span>
+
+<span style="color: #008800; font-weight: bold"># Motor PWM configuration</span>
+freq = <span style="color: #0000DD; font-weight: bold">480</span>  <span style="color: #888888"># Frequency in Hz</span>
+duty_cycleA = <span style="color: #0000DD; font-weight: bold">0</span>  <span style="color: #888888"># Initial duty cycle for motor A</span>
+duty_cycleB = <span style="color: #0000DD; font-weight: bold">0</span>  <span style="color: #888888"># Initial duty cycle for motor B</span>
+pwm24 = GPIO.PWM(<span style="color: #0000DD; font-weight: bold">19</span>, freq)
+pwm16 = GPIO.PWM(<span style="color: #0000DD; font-weight: bold">16</span>, freq)
+pwm24.start(duty_cycleA)
+pwm16.start(duty_cycleB)
+
+<span style="color: #008800; font-weight: bold"># Initialize Pygame</span>
+pygame.init()
+
+<span style="color: #008800; font-weight: bold"># Global flags and variables</span>
+flag = <span style="color: #0000DD; font-weight: bold">0</span>
+pause = <span style="color: #000000; font-weight: bold">False</span>
+category = ''  <span style="color: #888888"># Detected color category</span>
+x = <span style="color: #0000DD; font-weight: bold">0</span>  <span style="color: #888888"># X-coordinate of detected object</span>
+y = <span style="color: #0000DD; font-weight: bold">0</span>  <span style="color: #888888"># Y-coordinate of detected object</span>
+approx = []  <span style="color: #888888"># Object contour approximation</span>
+checking = <span style="color: #000000; font-weight: bold">True</span>
+lock = threading.Lock()  <span style="color: #888888"># Thread synchronization lock</span>
+
+<span style="color: #008800; font-weight: bold"># Left motor counterclockwise rotation</span>
+<span style="color: #008800; font-weight: bold">def</span> lccw(speed):
+    <span style="color: #008800; font-weight: bold">if</span> <span style="color: #000000; font-weight: bold">not</span> pause:
+        GPIO.output(<span style="color: #0000DD; font-weight: bold">5</span>, GPIO.HIGH)
+        GPIO.output(<span style="color: #0000DD; font-weight: bold">6</span>, GPIO.LOW)
+        pwm24.ChangeDutyCycle(speed)
+
+<span style="color: #008800; font-weight: bold"># Right motor clockwise rotation</span>
+<span style="color: #008800; font-weight: bold">def</span> rcw(speed):
+    <span style="color: #008800; font-weight: bold">if</span> <span style="color: #000000; font-weight: bold">not</span> pause:
+        GPIO.output(<span style="color: #0000DD; font-weight: bold">21</span>, GPIO.HIGH)
+        GPIO.output(<span style="color: #0000DD; font-weight: bold">20</span>, GPIO.LOW)
+        pwm16.ChangeDutyCycle(speed)
+
+<span style="color: #008800; font-weight: bold"># Stop left motor</span>
+<span style="color: #008800; font-weight: bold">def</span> lstop():
+    pwm24.ChangeDutyCycle(<span style="color: #0000DD; font-weight: bold">0</span>)
+
+<span style="color: #008800; font-weight: bold"># Stop right motor</span>
+<span style="color: #008800; font-weight: bold">def</span> rstop():
+    pwm16.ChangeDutyCycle(<span style="color: #0000DD; font-weight: bold">0</span>)
+
+<span style="color: #008800; font-weight: bold"># Main motor control loop</span>
+<span style="color: #008800; font-weight: bold">def</span> run_motor():
+    <span style="color: #008800; font-weight: bold">global</span> category, x, y, approx
+    desired_center = <span style="color: #0000DD; font-weight: bold">320</span>  <span style="color: #888888"># Desired center X-coordinate</span>
+    proportional_gain = <span style="color: #6600EE; font-weight: bold">0.6</span>  <span style="color: #888888"># Proportional gain for PID control</span>
+    dead_zone = <span style="color: #0000DD; font-weight: bold">10</span>  <span style="color: #888888"># Dead zone to prevent jittering</span>
+    prev_left_speed = <span style="color: #0000DD; font-weight: bold">0</span>
+    prev_right_speed = <span style="color: #0000DD; font-weight: bold">0</span>
+    max_delta = <span style="color: #0000DD; font-weight: bold">5</span>  <span style="color: #888888"># Max change in speed to smooth transitions</span>
+    time.sleep(<span style="color: #0000DD; font-weight: bold">2</span>)
+
+    <span style="color: #008800; font-weight: bold"># Initial motor movement</span>
+    <span style="color: #008800; font-weight: bold">while</span> <span style="color: #000000; font-weight: bold">True</span>:
+        lccw(<span style="color: #0000DD; font-weight: bold">100</span>)
+        time.sleep(<span style="color: #6600EE; font-weight: bold">0.15</span>)
+        <span style="color: #008800; font-weight: bold">with</span> lock:
+            category = cd.color_name
+            x = cd.cx
+            y = cd.cy
+            approx = cd.approx
+
+        <span style="color: #008800; font-weight: bold">if</span> category == cd.target:
+            <span style="color: #008800; font-weight: bold">break</span>
+        lstop()
+        time.sleep(<span style="color: #6600EE; font-weight: bold">0.2</span>)
+
+    <span style="color: #008800; font-weight: bold"># Object tracking logic</span>
+    <span style="color: #008800; font-weight: bold">while</span> <span style="color: #000000; font-weight: bold">True</span>:
+        <span style="color: #008800; font-weight: bold">with</span> lock:
+            <span style="color: #008800; font-weight: bold">if</span> cd.stop:
+                lstop()
+                rstop()
+                <span style="color: #008800; font-weight: bold">break</span>
+            category = cd.color_name
+            x = cd.cx
+            y = cd.cy
+            approx = cd.approx
+            step_stop = cd.step_stop
+
+        <span style="color: #008800; font-weight: bold">if</span> category == cd.target:
+            checking = <span style="color: #000000; font-weight: bold">False</span>
+            object_center = x
+            error = object_center - desired_center
+            <span style="color: #008800; font-weight: bold">if</span> abs(error) < dead_zone:
+                lstop()
+                rstop()
+                <span style="color: #008800; font-weight: bold">continue</span>
+
+            correction = proportional_gain * error / desired_center * <span style="color: #0000DD; font-weight: bold">50</span>
+            base_speed = <span style="color: #0000DD; font-weight: bold">80</span>  <span style="color: #888888"># Base speed for motors</span>
+            left_speed = base_speed + correction
+            right_speed = base_speed - correction
+            left_speed = <span style="color: #008800; font-weight: bold">max</span>(<span style="color: #0000DD; font-weight: bold">0</span>, <span style="color: #008800; font-weight: bold">min</span>(<span style="color: #0000DD; font-weight: bold">100</span>, left_speed))
+            right_speed = <span style="color: #008800; font-weight: bold">max</span>(<span style="color: #0000DD; font-weight: bold">0</span>, <span style="color: #008800; font-weight: bold">min</span>(<span style="color: #0000DD; font-weight: bold">100</span>, right_speed))
+            left_speed = <span style="color: #008800; font-weight: bold">max</span>(prev_left_speed - max_delta, <span style="color: #008800; font-weight: bold">min</span>(left_speed, prev_left_speed + max_delta))
+            right_speed = <span style="color: #008800; font-weight: bold">max</span>(prev_right_speed - max_delta, <span style="color: #008800; font-weight: bold">min</span>(right_speed, prev_right_speed + max_delta))
+            prev_left_speed = left_speed
+            prev_right_speed = right_speed
+            lccw(left_speed)
+            rcw(right_speed)
+            time.sleep(<span style="color: #6600EE; font-weight: bold">0.05</span>)
+        <span style="color: #008800; font-weight: bold">else</span>:
+            lstop()
+            rstop()
+            time.sleep(<span style="color: #6600EE; font-weight: bold">0.1</span>)
+
+<span style="color: #008800; font-weight: bold"># Main execution logic with threading for motor and detection tasks</span>
+<span style="color: #008800; font-weight: bold">try</span>:
+    sc.sending_color()  <span style="color: #888888"># Fetch target color from the server</span>
+    cd.target = sc.data
+    <span style="color: #008800; font-weight: bold">if</span> cd.target == <span style="background-color: #fff0f0">"Green"</span>:
+        cd.target_pos = <span style="color: #0000DD; font-weight: bold">339</span>  <span style="color: #888888"># Calibrate positions</span>
+    <span style="color: #008800; font-weight: bold">if</span> cd.target == <span style="background-color: #fff0f0">"Yellow"</span>:
+        cd.target_pos = <span style="color: #0000DD; font-weight: bold">315</span>  <span style="color: #888888"># Calibrate positions</span>
+    <span style="color: #008800; font-weight: bold">if</span> cd.target == <span style="background-color: #fff0f0">"Blue"</span>:
+        cd.target_pos = <span style="color: #0000DD; font-weight: bold">329</span>  <span style="color: #888888"># Calibrate positions</span>
+
+    ac.default()  <span style="color: #888888"># Reset robotic arm to default position</span>
+    motor_thread = threading.Thread(target=run_motor)
+    detect_thread = threading.Thread(target=cd.color_detection)
+
+    motor_thread.start()
+    detect_thread.start()
+
+    motor_thread.join()
+    detect_thread.join()
+
+    pwm24.stop()
+    pwm16.stop()
+    ac.default()
+
+    <span style="color: #888888"># Capture video and find the target object</span>
+    cap = cv2.VideoCapture(<span style="color: #0000DD; font-weight: bold">0</span>)
+    color_name = ''
+    <span style="color: #008800; font-weight: bold">while</span> color_name != cd.target:
+        ret, frame = cap.read()
+        color_name, x, y, approx = cd.find_color_cubes(frame)
+    cd.cd_stop()
+    ac.pick(x, y)
+
+    ac.ac_quit()
+    sys.exit()
+
+<span style="color: #008800; font-weight: bold">except</span> KeyboardInterrupt:
+    <span style="color: #008800; font-weight: bold">print</span>(<span style="background-color: #fff0f0">"Keyboard interrupt received. Cleaning up..."</span>)
+<span style="color: #008800; font-weight: bold">finally</span>:
+    cd.cd_stop()  <span style="color: #888888"># Stop color detection</span>
+
+  </code></pre>
+  <pre><code>
+
+\\go_back.py
+  <span style="color: #888888"># Authors:  Chenxin Xun (cx258)</span>
+  <span style="color: #888888">#           Pengru Lung (pl649)</span>
+  <span style="color: #888888"># Final project, Monday Section</span>
+  <span style="color: #888888"># 2024-12-13</span>
+  
+  <span style="color: #008800; font-weight: bold">import</span> <span style="color: #333333">pygame, pigame</span>  <span style="color: #888888"># pygame for GUI handling, pigame could be a typo or placeholder</span>
+  <span style="color: #008800; font-weight: bold">from</span> <span style="color: #333333">pygame.locals</span> <span style="color: #008800; font-weight: bold">import</span> *
+  <span style="color: #008800; font-weight: bold">import</span> <span style="color: #333333">os</span>
+  <span style="color: #008800; font-weight: bold">import</span> <span style="color: #333333">RPi._GPIO as GPIO</span>  <span style="color: #888888"># GPIO library for Raspberry Pi for pin control</span>
+  <span style="color: #008800; font-weight: bold">import</span> <span style="color: #333333">sys</span>
+  <span style="color: #008800; font-weight: bold">from</span> <span style="color: #333333">time</span> <span style="color: #008800; font-weight: bold">import</span> sleep
+  <span style="color: #008800; font-weight: bold">import</span> <span style="color: #333333">time</span>
+  <span style="color: #008800; font-weight: bold">import</span> <span style="color: #333333">threading</span>  <span style="color: #888888"># For multithreading</span>
+  <span style="color: #008800; font-weight: bold">import</span> <span style="color: #333333">color_detect as cd</span>  <span style="color: #888888"># Custom module for color detection</span>
+  <span style="color: #008800; font-weight: bold">import</span> <span style="color: #333333">math</span>
+  <span style="color: #008800; font-weight: bold">import</span> <span style="color: #333333">arm_control as ac</span>  <span style="color: #888888"># Custom module for robotic arm control</span>
+  <span style="color: #008800; font-weight: bold">import</span> <span style="color: #333333">cv2</span>  <span style="color: #888888"># OpenCV for computer vision</span>
+  
+  <span style="color: #888888"># GPIO pin configuration for Raspberry Pi</span>
+  GPIO.<span style="color: #333333">setmode(GPIO.BCM)</span>  <span style="color: #888888"># Use Broadcom GPIO numbering</span>
+  GPIO.<span style="color: #333333">setup(19, GPIO.OUT)</span>  <span style="color: #888888"># PWM pin for left motor</span>
+  GPIO.<span style="color: #333333">setup(5, GPIO.OUT)</span>   <span style="color: #888888"># Left motor control pin</span>
+  GPIO.<span style="color: #333333">setup(6, GPIO.OUT)</span>   <span style="color: #888888"># Left motor control pin</span>
+  GPIO.<span style="color: #333333">setup(16, GPIO.OUT)</span>  <span style="color: #888888"># PWM pin for right motor</span>
+  GPIO.<span style="color: #333333">setup(20, GPIO.OUT)</span>  <span style="color: #888888"># Right motor control pin</span>
+  GPIO.<span style="color: #333333">setup(21, GPIO.OUT)</span>  <span style="color: #888888"># Right motor control pin</span>
+  
+  <span style="color: #888888"># Motor PWM setup</span>
+  <span style="color: #333333">freq = 480</span>  <span style="color: #888888"># PWM frequency in Hz</span>
+  <span style="color: #333333">duty_cycleA = 0</span>  <span style="color: #888888"># Initial duty cycle for motor A</span>
+  <span style="color: #333333">duty_cycleB = 0</span>  <span style="color: #888888"># Initial duty cycle for motor B</span>
+  <span style="color: #333333">pwm24 = GPIO.PWM(19, freq)</span>
+  <span style="color: #333333">pwm16 = GPIO.PWM(16, freq)</span>
+  <span style="color: #333333">pwm24.start(duty_cycleA)</span>
+  <span style="color: #333333">pwm16.start(duty_cycleB)</span>
+  
+  <span style="color: #888888"># Initialize Pygame for GUI or event handling</span>
+  pygame.<span style="color: #333333">init()</span>
+  
+  <span style="color: #888888"># Global flags and variables</span>
+  <span style="color: #333333">flag = 0</span>
+  <span style="color: #333333">pause = False</span>
+  <span style="color: #333333">category = ''</span>  <span style="color: #888888"># Detected object category</span>
+  <span style="color: #333333">x = 0</span>  <span style="color: #888888"># X-coordinate of detected object</span>
+  <span style="color: #333333">y = 0</span>  <span style="color: #888888"># Y-coordinate of detected object</span>
+  <span style="color: #333333">approx = []</span>  <span style="color: #888888"># Contour approximation of the object</span>
+  <span style="color: #333333">checking = True</span>
+  <span style="color: #333333">lock = threading.Lock()</span>  <span style="color: #888888"># Lock for thread-safe access to shared variables</span>
+  
+  <span style="color: #888888"># Control left motor counterclockwise</span>
+  <span style="color: #008800; font-weight: bold">def</span> <span style="color: #333333">lccw(speed):</span>
+      <span style="color: #008800; font-weight: bold">if</span> <span style="color: #333333">not pause:</span>
+          GPIO.<span style="color: #333333">output(5, GPIO.HIGH)</span>
+          GPIO.<span style="color: #333333">output(6, GPIO.LOW)</span>
+          pwm24.<span style="color: #333333">ChangeDutyCycle(speed)</span>
+  
+  <span style="color: #888888"># Control right motor clockwise</span>
+  <span style="color: #008800; font-weight: bold">def</span> <span style="color: #333333">rcw(speed):</span>
+      <span style="color: #008800; font-weight: bold">if</span> <span style="color: #333333">not pause:</span>
+          GPIO.<span style="color: #333333">output(21, GPIO.HIGH)</span>
+          GPIO.<span style="color: #333333">output(20, GPIO.LOW)</span>
+          pwm16.<span style="color: #333333">ChangeDutyCycle(speed)</span>
+  
+  <span style="color: #888888"># Stop left motor</span>
+  <span style="color: #008800; font-weight: bold">def</span> <span style="color: #333333">lstop():</span>
+      pwm24.<span style="color: #333333">ChangeDutyCycle(0)</span>
+  
+  <span style="color: #888888"># Stop right motor</span>
+  <span style="color: #008800; font-weight: bold">def</span> <span style="color: #333333">rstop():</span>
+      pwm16.<span style="color: #333333">ChangeDutyCycle(0)</span>
+  
+  <span style="color: #888888"># Main motor control function</span>
+  <span style="color: #008800; font-weight: bold">def</span> <span style="color: #333333">run_motor():</span>
+      <span style="color: #008800; font-weight: bold">global</span> <span style="color: #333333">category, x, y, approx</span>
+      <span style="color: #333333">desired_center = 320</span>  <span style="color: #888888"># Desired X-coordinate of the object center</span>
+      <span style="color: #333333">proportional_gain = 0.6</span>  <span style="color: #888888"># Proportional gain for PID control</span>
+      <span style="color: #333333">dead_zone = 10</span>  <span style="color: #888888"># Error threshold to avoid small corrections</span>
+      <span style="color: #333333">prev_left_speed = 0</span>  <span style="color: #888888"># Previous left motor speed</span>
+      <span style="color: #333333">prev_right_speed = 0</span> <span style="color: #888888"># Previous right motor speed</span>
+      <span style="color: #333333">max_delta = 5</span>  <span style="color: #888888"># Maximum change in speed to smooth transitions</span>
+  
+      time.<span style="color: #333333">sleep(2)</span>  <span style="color: #888888"># Initial delay for system setup</span>
+  
+      <span style="color: #888888"># Loop for initial detection and alignment</span>
+      <span style="color: #008800; font-weight: bold">while</span> <span style="color: #333333">True:</span>
+          <span style="color: #008800; font-weight: bold">with</span> <span style="color: #333333">lock:</span>
+              category = cd.<span style="color: #333333">color_name</span>
+              x = cd.<span style="color: #333333">cx</span>
+              y = cd.<span style="color: #333333">cy</span>
+              approx = cd.<span style="color: #333333">approx</span>
+  
+          <span style="color: #008800; font-weight: bold">if</span> <span style="color: #333333">category == cd.target:</span>
+              <span style="color: #008800; font-weight: bold">break</span>
+  
+          lccw(<span style="color: #333333">100</span>)  <span style="color: #888888"># Move left motor counterclockwise</span>
+          time.<span style="color: #333333">sleep(0.15)</span>  <span style="color: #888888"># Brief movement duration</span>
+          lstop()  <span style="color: #888888"># Stop left motor</span>
+          time.<span style="color: #333333">sleep(0.2)</span>  <span style="color: #888888"># Short pause</span>
+  
+      <span style="color: #888888"># Loop for precise object tracking</span>
+      <span style="color: #008800; font-weight: bold">while</span> <span style="color: #333333">True:</span>
+          <span style="color: #008800; font-weight: bold">with</span> <span style="color: #333333">lock:</span>
+              <span style="color: #008800; font-weight: bold">if</span> <span style="color: #333333">cd.stop:</span>
+                  lstop()
+                  rstop()
+                  <span style="color: #008800; font-weight: bold">break</span>
+              category = cd.<span style="color: #333333">color_name</span>
+              x = cd.<span style="color: #333333">cx</span>
+              y = cd.<span style="color: #333333">cy</span>
+              approx = cd.<span style="color: #333333">approx</span>
+  
+          <span style="color: #008800; font-weight: bold">if</span> <span style="color: #333333">category == cd.target:</span>
+              checking = <span style="color: #333333">False</span>
+              object_center = x
+              error = object_center - desired_center
+  
+              <span style="color: #008800; font-weight: bold">if</span> <span style="color: #333333">abs(error) &lt; dead_zone:</span>  <span style="color: #888888"># Check if within acceptable range</span>
+                  lstop()
+                  rstop()
+                  <span style="color: #008800; font-weight: bold">continue</span>
+  
+              correction = proportional_gain * error / desired_center * <span style="color: #333333">50</span>
+              base_speed = <span style="color: #333333">80</span>  <span style="color: #888888"># Base speed for motors</span>
+              left_speed = base_speed + correction
+              right_speed = base_speed - correction
+  
+              <span style="color: #888888"># Clamp speeds and smooth transitions</span>
+              <span style="color: #333333">left_speed = max(0, min(100, left_speed))</span>
+              <span style="color: #333333">right_speed = max(0, min(100, right_speed))</span>
+              <span style="color: #333333">left_speed = max(prev_left_speed - max_delta, min(left_speed, prev_left_speed + max_delta))</span>
+              <span style="color: #333333">right_speed = max(prev_right_speed - max_delta, min(right_speed, prev_right_speed + max_delta))</span>
+              <span style="color: #333333">prev_left_speed = left_speed</span>
+              <span style="color: #333333">prev_right_speed = right_speed</span>
+  
+              lccw(left_speed)  <span style="color: #888888"># Adjust left motor speed</span>
+              rcw(right_speed)  <span style="color: #888888"># Adjust right motor speed</span>
+              time.<span style="color: #333333">sleep(0.05)</span>  <span style="color: #888888"># Brief control interval</span>
+          <span style="color: #008800; font-weight: bold">else</span>:
+              lstop()
+              rstop()
+              time.<span style="color: #333333">sleep(0.1)</span>  <span style="color: #888888"># Pause when target not detected</span>
+  
+  <span style="color: #888888"># Main program logic</span>
+  <span style="color: #008800; font-weight: bold">try</span>:
+      cd.<span style="color: #333333">enable_threshold_filter = True</span>  <span style="color: #888888"># Enable threshold-based filtering</span>
+      cd.<span style="color: #333333">target = "Blue"</span>  <span style="color: #888888"># Set target color</span>
+      cd.<span style="color: #333333">target_pos = 320</span>  <span style="color: #888888"># Set target position</span>
+      ac.<span style="color: #333333">go_back_default()</span>  <span style="color: #888888"># Reset robotic arm to default position</span>
+  
+      <span style="color: #888888"># Create threads for motor control and color detection</span>
+      motor_thread = threading.<span style="color: #333333">Thread(target=run_motor)</span>
+      detect_thread = threading.<span style="color: #333333">Thread(target=cd.color_detection)</span>
+  
+      motor_thread.<span style="color: #333333">start()</span>
+      detect_thread.<span style="color: #333333">start()</span>
+  
+      motor_thread.<span style="color: #333333">join()</span>  <span style="color: #888888"># Wait for motor thread to complete</span>
+      detect_thread.<span style="color: #333333">join()</span>  <span style="color: #888888"># Wait for detection thread to complete</span>
+  
+      pwm24.<span style="color: #333333">stop()</span>
+      pwm16.<span style="color: #333333">stop()</span>
+  
+      ac.<span style="color: #333333">default()</span>  <span style="color: #888888"># Reset robotic arm to default state</span>
+      cap = cv2.<span style="color: #333333">VideoCapture(0)</span>  <span style="color: #888888"># Open video capture</span>
+      color_name = <span style="color: #333333">''</span>
+      <span style="color: #008800; font-weight: bold">while</span> <span style="color: #333333">color_name != cd.target:</span>
+          ret, frame = cap.<span style="color: #333333">read()</span>
+          color_name, x, y, approx = cd.<span style="color: #333333">find_color_cubes(frame)</span>
+      cd.<span style="color: #333333">cd_stop()</span>
+  
+      ac.<span style="color: #333333">release(x, y)</span>  <span style="color: #888888"># Release the object at detected position</span>
+  
+      ac.<span style="color: #333333">ac_quit()</span>
+      sys.<span style="color: #333333">exit()</span>  <span style="color: #888888"># Exit the program</span>
+      cd.<span style="color: #333333">cd_stop()</span>
+  
+  <span style="color: #008800; font-weight: bold">except</span> KeyboardInterrupt:
+      <span style="color: #333333">print("Keyboard interrupt received. Cleaning up...")</span>
+  <span style="color: #008800; font-weight: bold">finally</span>:
+      cd.<span style="color: #333333">cd_stop()</span>  <span style="color: #888888"># Ensure color detection stops on exit</span>
+    </code></pre>
+    <pre><code>
+  
+                  
+
 // run.sh
+<span style="color: #888888"># Authors:  Chenxin Xun (cx258)</span>
+<span style="color: #888888">#           Pengru Lung (pl649)</span>
+<span style="color: #888888"># Final project, Monday Section</span>
+<span style="color: #888888"># 2024-12-13</span>
 <span style="color: #888888">#!/usr/bin/env bash</span>
 <span style="color: #888888"># Start the pigpio daemon, which is required for GPIO control</span>
 sudo pigpiod
