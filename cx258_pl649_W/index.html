@@ -62,7 +62,7 @@
 
       <div class="starter-template">
         <h1>Autonomous Object Retrieval Robot</h1>
-        <p class="lead">Innovative and Impressive<br>A Project By Chenxin Xun and Pengru Lung.</p>
+        <p class="lead">ECE5725 2024Fall Project<br>A Project By Chenxin Xun and Pengru Lung.</p>
       </div>
 
       <hr>
@@ -82,7 +82,7 @@
 
       <div class="row">
           <div class="col-md-4" style="text-align:center;">
-          <img class="img-rounded" src="pics/1.jpg" alt="Generic placeholder image" width="240" height="240">
+          <img class="img-rounded" src="pics/robot2.jpg" alt="Generic placeholder image" width="377" height="240">
           </div>
           <div class="col-md-8" style="font-size:18px;">
           <h2>Project Objective:</h2>
@@ -102,8 +102,12 @@
               <h2>Design</h2>
               <h3 style="text-align: center; padding: 0px 150px;">Hardware Design</h3>
               <h4 style="text-align: center; padding: 0px 150px;">Glove Design</h4>
-              <p style="text-align: justify; padding: 0px 150px;">We have mounted the Raspberry Pi 4 and a camera onto the glove. Also, we implemented a button on the Raspberry Pi 4 to control the camera. Using soldering, we connected the button and a 1kΩ resistor, wiring them to GPIO pin 17 and Ground. This setup was thoroughly tested to ensure both the hardware’s stability and the responsiveness of the button control.</p>
-              <h4 style="text-align: center; padding: 0px 150px;">Robot Design</h4>
+              <div style="display: flex; align-items: center;">
+            <img class="img-rounded" src="pics/glove.jpg" alt="Generic placeholder image" width="223" height="240" style="margin-right: 35px; margin-left: 25px;">
+    <p style="text-align: justify; padding: 0px; max-width: 700px;"> We have mounted the Raspberry Pi 4 and a camera onto the glove. Also, we implemented a button on the Raspberry Pi 4 to control the camera. Using soldering, we connected the button and a 1kΩ resistor, wiring them to GPIO pin 17 and Ground. This setup was thoroughly tested to ensure both the hardware’s stability and the responsiveness of the button control.
+    </p>
+ </div>
+            <h4 style="text-align: center; padding: 0px 150px;">Robot Design</h4>
               <p style="text-align: justify; padding: 0px 150px;">In our robot design, we utilize a Raspberry Pi 4 to control the robot's movements and arm. The robot is equipped with two servos for controlling the arm and two servos for robot movement. The servos are connected to specific GPIO pins on the Raspberry Pi, which are used to send control signals for precise movement. The Raspberry Pi acts as the central control unit, coordinating the servos' actions based on the input from the camera-equipped glove. Our GPIO pin mappings are shown in the table below.</p> 
               <h4 style="text-align: center; padding: 0px 150px;">Table 1: RaspberryPi GPIO Pin to Signal Mapping</h4>
               <table style="width: 100%; text-align: center; padding: 0px 150px; border-collapse: collapse;">
@@ -112,23 +116,23 @@
                   <th style="border-bottom: 1px solid #D3D3D3; padding: 8px; text-align: center;">Signal Name</th>
                   <tr>
                     <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 4</td>
-                    <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">wrist control</td>
+                    <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">Robot wrist rotation control</td>
                   </tr>
                   <tr>
                   <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 5</td>
-                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">Left motor control pin</td>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">Direction control for left motor</td>
                 </tr>
                 <tr>
                   <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 6</td>
-                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">Left motor control pin</td>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">Direction control for left motor</td>
                 </tr>
                 <tr>
                   <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 12</td>
-                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">base conteol</td>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">Robot arm base rotation control</td>
                 </tr>
                 <tr>
                   <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 13</td>
-                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">shoulder control</td>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">Robot shoulder elevation control</td>
                 </tr>
                 <tr>
                   <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 16</td>
@@ -140,14 +144,14 @@
                 </tr>
                 <tr>
                   <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 20</td>
-                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">Right motor control pin</td>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">Direction control for right motor</td>
                 </tr>
                 <tr>
                   <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 21</td>
-                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">Right motor control pin</td>
+                  <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">Direction control for right motor</td>
                   <tr>
                     <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">GPIO 26</td>
-                    <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">elbow control</td>
+                    <td style="border-bottom: 1px solid #D3D3D3; padding: 8px;">Robot elbow joint control</td>
               </table>   
               <h3 style="text-align: center; padding: 0px 150px;">Software Design</h3>
               <h4 style="text-align: center; padding: 0px 150px;">Glove Design</h4>
@@ -185,23 +189,23 @@
 
       <div style="text-align:center;">
               <h2>Testing</h2>
-              <p style="text-align: left;padding: 0px 30px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum lorem nulla, consectetur at leo vel, pretium bibendum nisl. Cras blandit quam a enim ultrices, eu convallis enim posuere. Donec eleifend enim sed purus consectetur, vitae cursus lectus varius. Vivamus consectetur felis nec est venenatis posuere. Phasellus vitae aliquet erat. In laoreet lacinia mollis. Quisque iaculis nisl fermentum pharetra lobortis. Donec rhoncus dui sem, ac molestie leo tristique vel. Phasellus in nibh feugiat, fringilla lectus in, elementum magna. Etiam quis dui condimentum, tempus ex in, dapibus est. Cras ut congue augue. Donec ac enim ex. Ut id tristique risus, vel porttitor quam. Sed ultricies enim eu nibh porttitor, vel sodales enim feugiat. Fusce volutpat venenatis magna ac ultrices. Curabitur eget urna ut nulla mattis convallis non eu diam.</p>
+              <p style="text-align: left;padding: 0px 30px;">In our testing, we conducted separate tests for the glove and the robot. We tested the glove by pointing it at a specific color and printing the color. For the robot, we tested it by placing a ball in front of it, and the robot was able to pick up the ball. With the basic tests passed, we also implemented additional tests, such as ensuring the robot can ignore balls of different colors and pick up only the assigned color. Additionally, we tested its ability to detect the blue bar and return it to the designated location.</p>
+              <p style="text-align: left;padding: 0px 30px;">After thoroughly testing these two devices, we performed system integration. In this test, the glove points to a color, and the glove sends the color to the robot. The robot should follow the color contained in the message, go pick up the ball, and return it to its designated location.</p>
+              <p style="text-align: left;padding: 0px 30px;">In our testing, sometimes the robot can pick up the ball correctly, but there are instances where it does not work as expected. In some cases, we need to perform calibration. Additionally, due to some multithreading issues, the camera did not close correctly, causing the video to reopen unexpectedly. In general, we need to recalibrate the robot after approximately 10 pickups. Also, when the robot continuously picks up and returns balls without restarting the program, the camera may encounter issues opening properly. However, once the calibration is complete and the program is restarted, the robot can perform the task of picking up different balls in most situations.</p>
       </div>
 
     <hr id='result'>
 
       <div style="text-align:center;">
               <h2>Result</h2>
-              <p style="text-align: left;padding: 0px 30px;">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum lorem nulla, consectetur at leo vel, pretium bibendum nisl. Cras blandit quam a enim ultrices, eu convallis enim posuere. Donec eleifend enim sed purus consectetur, vitae cursus lectus varius. Vivamus consectetur felis nec est venenatis posuere. Phasellus vitae aliquet erat. In laoreet lacinia mollis. Quisque iaculis nisl fermentum pharetra lobortis. Donec rhoncus dui sem, ac molestie leo tristique vel. Phasellus in nibh feugiat, fringilla lectus in, elementum magna. Etiam quis dui condimentum, tempus ex in, dapibus est. Cras ut congue augue. Donec ac enim ex. Ut id tristique risus, vel porttitor quam. Sed ultricies enim eu nibh porttitor, vel sodales enim feugiat. Fusce volutpat venenatis magna ac ultrices. Curabitur eget urna ut nulla mattis convallis non eu diam.</p>
-      </div>
-
+              <p style="text-align: left;padding: 0px 30px;">In conclusion, we have the glove point to a specific color and use Wi-Fi transmission to send the assigned color to the robot. The robot can detect the specific color ball, move towards it, pick it up, and return the ball to the designated position. We have our demonstration in the video above. In this project, we still need to improve reliability, whether by using more decision-making processes to determine whether the ball has been picked up, performing calibration automatically, adding PID control to regulate the signal, or improving multithreading for more stable performance.</p>
+              <p style="text-align: left;padding: 0px 30px;">All in all, we consider this five-week project to be a significant achievement and a great learning experience.</p>
     <hr>
-
+    <hr id='work'>
     <div class="row" style="text-align:center;">
           <h2>Work Distribution</h2>
           <div style="text-align:center;">
-              <img class="img-rounded" src="pics/group.jpg" alt="Generic placeholder image" style="width:80%;">
-              <h4>Project group picture</h4>
+
           </div>
           <div class="col-md-6" style="font-size:16px">
               <img class="img-rounded" src="pics/a.png" alt="Generic placeholder image" width="240" height="240">
@@ -216,10 +220,9 @@
               <p>Design of Camera-Equipped Glove and Transmission System 
           </div>
       </div>
-
-    <hr>
-      <div style="font-size:18px">
-          <h2>Parts List</h2>
+      <hr>
+      <div style="font-size:18px; text-align: left;">
+          <h2>Parts List</h2>            
           <ul>
               <li>Raspberry Pi 4 $35.00</li>
               <li>Raspberry Pi Camera V2 $20.00</li>
@@ -228,10 +231,11 @@
               <li>Resistors, Wires and Buttons- Provided in lab</li>
           </ul>
           <h3>Total: $97.13</h3>
-      </div>
-      <hr>
-      <div style="font-size:18px">
-          <h2>References</h2>
+        </div>
+        <hr>
+        <div style="font-size:18px; text-align: left;">
+            <h2>References</h2>
+            <a style="font-size: 18px; text-align: left;">
           <a href="https://picamera.readthedocs.io/">PiCamera Document</a><br>
           <a href="http://www.micropik.com/PDF/SG90Servo.pdf">Tower Pro Servo Datasheet</a><br>
           <a href="http://abyz.co.uk/rpi/pigpio/">Pigpio Library</a><br>
@@ -240,9 +244,9 @@
 
       </div>
 
-    <hr>
+      <hr>
 
-      <div class="row">
+      <div style="font-size:18px; text-align: left;">
               <h2>Code Appendix</h2>
               <pre><code>
 <!-- // Hello World.c

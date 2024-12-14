@@ -87,11 +87,11 @@ def run_motor():
         lccw(100)
         time.sleep(0.15)
         with lock:
-            category = cd.color_name
-            x = cd.cx
-            y = cd.cy
+            category = cd.color_name # Get current detected color
+            x = cd.cx # Get x-coordinate of detected object
+            y = cd.cy # Get y-coordinate of detected object
             approx = cd.approx
-
+        # Stop initial detection if target color is found
         if category == cd.target:
             break
         lstop()
@@ -100,13 +100,14 @@ def run_motor():
     # Object tracking logic
     while True:
         with lock:
+            # if color detection stop, stop the left motor and right motor
             if cd.stop:
                 lstop()
                 rstop()
                 break
-            category = cd.color_name
-            x = cd.cx
-            y = cd.cy
+            category = cd.color_name # Get current detected color
+            x = cd.cx # Get x-coordinate of detected object
+            y = cd.cy # Get y-coordinate of detected object
             approx = cd.approx
             step_stop = cd.step_stop
 
@@ -118,7 +119,8 @@ def run_motor():
                 lstop()
                 rstop()
                 continue
-
+            
+            # Adjust to the right return place
             correction = proportional_gain * error / desired_center * 50
             base_speed = 80  # Base speed for motors
             left_speed = base_speed + correction
@@ -158,6 +160,7 @@ try:
     motor_thread.join()
     detect_thread.join()
 
+    # Stop PWM signals
     pwm24.stop()
     pwm16.stop()
     ac.default()
