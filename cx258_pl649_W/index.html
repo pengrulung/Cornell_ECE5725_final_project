@@ -53,10 +53,6 @@
             <li><a href="#drawings">Drawings</a></li>
             <li><a href="#testing">Testing</a></li>
             <li><a href="#result">Result</a></li>
-            <li><a href="#work">Work Distribution</a></li>
-            <li><a href="#parts">Parts List</a></li>
-            <li><a href="#ref">References</a></li>
-            <li><a href="#code">Code</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
@@ -208,9 +204,9 @@
               <p>Design of Camera-Equipped Glove and Transmission System 
           </div>
       </div>
-      <hr id='parts'>
-      <div style="font-size:18px">
-          <h2>Parts List</h2>
+      <hr>
+      <div style="font-size:18px; text-align: left;">
+          <h2>Parts List</h2>            
           <ul>
               <li>Raspberry Pi 4 $35.00</li>
               <li>Raspberry Pi Camera V2 $20.00</li>
@@ -219,10 +215,11 @@
               <li>Resistors, Wires and Buttons- Provided in lab</li>
           </ul>
           <h3>Total: $97.13</h3>
-      </div>
-      <hr id='ref'>
-      <div style="font-size:18px">
-          <h2>References</h2>
+        </div>
+        <hr>
+        <div style="font-size:18px; text-align: left;">
+            <h2>References</h2>
+            <a style="font-size: 18px; text-align: left;">
           <a href="https://picamera.readthedocs.io/">PiCamera Document</a><br>
           <a href="http://www.micropik.com/PDF/SG90Servo.pdf">Tower Pro Servo Datasheet</a><br>
           <a href="http://abyz.co.uk/rpi/pigpio/">Pigpio Library</a><br>
@@ -231,10 +228,11 @@
 
       </div>
 
-    <hr id='code'>
-      <div class="row">
+      <hr>
+
+      <div style="font-size:18px; text-align: left;">
               <h2>Code Appendix</h2>
-              
+                          
 <h3>color_detect.py</h3>
 <pre><code>
 <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">cv2</span>
@@ -519,159 +517,159 @@ color_ranges <span style="color: #333333">=</span> {
 <h3>arm_control.py</h3>
                     <pre><code>
 <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">pigpio</span>
-  <span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">time</span>
-  <span style="color: #888888"># Initialize pigpio and check connection</span>
-  pi <span style="color: #333333">=</span> pigpio<span style="color: #333333">.</span>pi()
-  <span style="color: #008800; font-weight: bold">if</span> <span style="color: #000000; font-weight: bold">not</span> pi<span style="color: #333333">.</span>connected:
-      <span style="color: #007020">exit</span>(<span style="background-color: #fff0f0">&quot;Failed to connect to pigpio daemon&quot;</span>) <span style="color: #888888"># Exit if unable to connect</span>
-  <span style="color: #888888"># Define the minimum duty cycles for each servo motor</span>
-  min_duties <span style="color: #333333">=</span> [<span style="color: #6600EE; font-weight: bold">4.3</span>, <span style="color: #6600EE; font-weight: bold">5.8</span>, <span style="color: #0000DD; font-weight: bold">4</span>, <span style="color: #0000DD; font-weight: bold">5</span>]
-  <span style="color: #888888"># Define specifications for each servo motor (pin numbers and pulse width ranges)</span>
-  servo_specs <span style="color: #333333">=</span> {
-      <span style="background-color: #fff0f0">&#39;base&#39;</span>: {
-          <span style="background-color: #fff0f0">&#39;pin&#39;</span>: <span style="color: #0000DD; font-weight: bold">12</span>,
-          <span style="background-color: #fff0f0">&#39;min_pw&#39;</span>: min_duties[<span style="color: #0000DD; font-weight: bold">0</span>]<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>,              <span style="color: #888888"># e.g. 4 * 200 = 800µs</span>
-          <span style="background-color: #fff0f0">&#39;max_pw&#39;</span>: (min_duties[<span style="color: #0000DD; font-weight: bold">0</span>]<span style="color: #333333">+</span><span style="color: #6600EE; font-weight: bold">8.5</span>)<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>         <span style="color: #888888"># e.g. (4+8.5)*200 = 2500µs</span>
-      },
-      <span style="background-color: #fff0f0">&#39;shoulder&#39;</span>: {
-          <span style="background-color: #fff0f0">&#39;pin&#39;</span>: <span style="color: #0000DD; font-weight: bold">13</span>,
-          <span style="background-color: #fff0f0">&#39;min_pw&#39;</span>: min_duties[<span style="color: #0000DD; font-weight: bold">1</span>]<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>,              <span style="color: #888888"># 5.5 * 200 = 1100µs</span>
-          <span style="background-color: #fff0f0">&#39;max_pw&#39;</span>: (min_duties[<span style="color: #0000DD; font-weight: bold">1</span>]<span style="color: #333333">+</span><span style="color: #6600EE; font-weight: bold">5.6</span>)<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>         <span style="color: #888888"># (5.5+5.6)*200 = 2220µs</span>
-      },
-      <span style="background-color: #fff0f0">&#39;elbow&#39;</span>: {
-          <span style="background-color: #fff0f0">&#39;pin&#39;</span>: <span style="color: #0000DD; font-weight: bold">26</span>,
-          <span style="background-color: #fff0f0">&#39;min_pw&#39;</span>: min_duties[<span style="color: #0000DD; font-weight: bold">2</span>]<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>,              <span style="color: #888888"># 4 * 200 = 800µs</span>
-          <span style="background-color: #fff0f0">&#39;max_pw&#39;</span>: (min_duties[<span style="color: #0000DD; font-weight: bold">2</span>]<span style="color: #333333">+</span><span style="color: #6600EE; font-weight: bold">3.4</span>)<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>         <span style="color: #888888"># (4+3.4)*200 = 1480µs</span>
-      },
-      <span style="background-color: #fff0f0">&#39;wrist&#39;</span>: {
-          <span style="background-color: #fff0f0">&#39;pin&#39;</span>: <span style="color: #0000DD; font-weight: bold">4</span>,
-          <span style="background-color: #fff0f0">&#39;min_pw&#39;</span>: min_duties[<span style="color: #0000DD; font-weight: bold">3</span>]<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>,              <span style="color: #888888"># 4.5 * 200 = 900µs</span>
-          <span style="background-color: #fff0f0">&#39;max_pw&#39;</span>: (min_duties[<span style="color: #0000DD; font-weight: bold">3</span>]<span style="color: #333333">+</span><span style="color: #6600EE; font-weight: bold">1.7</span>)<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>         <span style="color: #888888"># (4.5+1.7)*200 = 1240µs</span>
-      }
-  }
-  <span style="color: #888888"># Initialize all servo pins and set them to their default position (pulse width = 0)</span>
-  <span style="color: #008800; font-weight: bold">for</span> joint, specs <span style="color: #000000; font-weight: bold">in</span> servo_specs<span style="color: #333333">.</span>items():
-      pi<span style="color: #333333">.</span>set_mode(specs[<span style="background-color: #fff0f0">&#39;pin&#39;</span>], pigpio<span style="color: #333333">.</span>OUTPUT) <span style="color: #888888"># Set pin mode to OUTPUT</span>
-      pi<span style="color: #333333">.</span>set_servo_pulsewidth(specs[<span style="background-color: #fff0f0">&#39;pin&#39;</span>], <span style="color: #0000DD; font-weight: bold">0</span>)
-      
-  <span style="color: #888888"># Function to generate a range of float values with a specified step</span>
-  <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">frange</span>(start, stop, step):
-      r <span style="color: #333333">=</span> start
-      <span style="color: #008800; font-weight: bold">if</span> step <span style="color: #333333">&gt;</span> <span style="color: #0000DD; font-weight: bold">0</span>:
-          <span style="color: #008800; font-weight: bold">while</span> r <span style="color: #333333">&lt;</span> stop:
-              <span style="color: #008800; font-weight: bold">yield</span> r
-              r <span style="color: #333333">+=</span> step
-      <span style="color: #008800; font-weight: bold">else</span>:
-          <span style="color: #008800; font-weight: bold">while</span> r <span style="color: #333333">&gt;</span> stop:
-              <span style="color: #008800; font-weight: bold">yield</span> r
-              r <span style="color: #333333">+=</span> step
-              
-  <span style="color: #888888"># Function to move a servo motor to a target pulse width</span>
-  <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">move_servo_slowly</span>(pin, start_pw, end_pw, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">25</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.1</span>):
-      <span style="color: #888888"># Determine the movement based on start and end pulse width</span>
-      <span style="color: #008800; font-weight: bold">if</span> start_pw <span style="color: #333333">&lt;</span> end_pw:
-          pw_range <span style="color: #333333">=</span> frange(start_pw, end_pw, step)
-      <span style="color: #008800; font-weight: bold">else</span>:
-          pw_range <span style="color: #333333">=</span> frange(start_pw, end_pw, <span style="color: #333333">-</span>step)
-      <span style="color: #888888"># Gradually adjust the pulse width and delay to allow smooth movement</span>
-      <span style="color: #008800; font-weight: bold">for</span> pw <span style="color: #000000; font-weight: bold">in</span> pw_range:
-          pi<span style="color: #333333">.</span>set_servo_pulsewidth(pin, pw)
-          time<span style="color: #333333">.</span>sleep(delay)
-      pi<span style="color: #333333">.</span>set_servo_pulsewidth(pin, end_pw)
-      
-  <span style="color: #888888"># Function to move servos to their default (home) positions</span>
-  <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">default</span>():
-      <span style="color: #888888"># set default points for each servo</span>
-      sh_mid <span style="color: #333333">=</span> ((servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>) <span style="color: #333333">-</span> (<span style="color: #6600EE; font-weight: bold">0.5</span><span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>)
-      ba_mid <span style="color: #333333">=</span> ((servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>)
-      el_mid <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>])  
-      <span style="color: #888888"># Move each servo to its default position</span>
-      pi<span style="color: #333333">.</span>set_servo_pulsewidth(servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], sh_mid)
-      time<span style="color: #333333">.</span>sleep(<span style="color: #0000DD; font-weight: bold">1</span>)
-      pi<span style="color: #333333">.</span>set_servo_pulsewidth(servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], <span style="color: #0000DD; font-weight: bold">0</span>)
-  
-      pi<span style="color: #333333">.</span>set_servo_pulsewidth(servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], ba_mid)
-      time<span style="color: #333333">.</span>sleep(<span style="color: #0000DD; font-weight: bold">1</span>)
-      pi<span style="color: #333333">.</span>set_servo_pulsewidth(servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], <span style="color: #0000DD; font-weight: bold">0</span>)
-  
-      pi<span style="color: #333333">.</span>set_servo_pulsewidth(servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], el_mid)
-      time<span style="color: #333333">.</span>sleep(<span style="color: #0000DD; font-weight: bold">1</span>)
-      pi<span style="color: #333333">.</span>set_servo_pulsewidth(servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], <span style="color: #0000DD; font-weight: bold">0</span>)
-      
-  <span style="color: #888888"># Function to perform a &quot;pick&quot; action using the robotic arm</span>
-  <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">pick</span>(x, y):
-      <span style="color: #888888"># Calculate initial midpoints for each joint</span>
-      wr_mid <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
-      ba_mid <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
-      sh_mid <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
-      el_mid <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
-      <span style="color: #888888"># Move wrist servo to target position</span>
-      wr_target <span style="color: #333333">=</span> servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>]
-      move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], wr_mid, wr_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
-      wr_mid <span style="color: #333333">=</span> wr_target
-      <span style="color: #888888"># Move base servo to calculated target position based on `x(find_color_cube)` input</span>
-      ba_target <span style="color: #333333">=</span> ba_mid <span style="color: #333333">+</span> (<span style="color: #007020">float</span>(<span style="color: #007020">int</span>((<span style="color: #0000DD; font-weight: bold">315</span> <span style="color: #333333">-</span> x) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">25</span>)) <span style="color: #333333">*</span> <span style="color: #6600EE; font-weight: bold">0.18</span> <span style="color: #333333">*</span> <span style="color: #0000DD; font-weight: bold">200</span>)
-      move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], ba_mid, ba_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
-      ba_mid <span style="color: #333333">=</span> ba_target
-      <span style="color: #888888"># Move elbow servo to its minimum position</span>
-      el_target <span style="color: #333333">=</span> servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]
-      move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], el_mid, el_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
-      el_mid <span style="color: #333333">=</span> el_target
-      <span style="color: #888888"># Move shoulder servo to its caculated target</span>
-      sh_target <span style="color: #333333">=</span> servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> (<span style="color: #6600EE; font-weight: bold">0.2</span> <span style="color: #333333">*</span> <span style="color: #0000DD; font-weight: bold">200</span>) <span style="color: #888888"># 0.2 duty ~ 40µs step</span>
-      move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], sh_mid, sh_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">20</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.02</span>)
-      sh_mid <span style="color: #333333">=</span> sh_target
-      <span style="color: #888888"># Move elbow servo to its caculated target</span>
-      el_target <span style="color: #333333">=</span> servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>] <span style="color: #333333">+</span> <span style="color: #007020">float</span>(<span style="color: #007020">int</span>((y <span style="color: #333333">-</span> <span style="color: #0000DD; font-weight: bold">350</span>) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">25</span>)) <span style="color: #333333">*</span> (<span style="color: #6600EE; font-weight: bold">0.2</span> <span style="color: #333333">*</span> <span style="color: #0000DD; font-weight: bold">200</span>)
-      move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], el_mid, el_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
-      el_mid <span style="color: #333333">=</span> el_target
-      <span style="color: #888888"># Move wrist servo to its caculated target</span>
-      wr_target <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
-      move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], wr_mid, wr_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
-      wr_mid <span style="color: #333333">=</span> wr_target
-      <span style="color: #888888"># Move shoulder servo to its caculated target</span>
-      sh_target <span style="color: #333333">=</span> ((servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>) <span style="color: #333333">-</span> (<span style="color: #6600EE; font-weight: bold">0.5</span><span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>)
-      move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], sh_mid, sh_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">20</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.02</span>)
-      sh_mid <span style="color: #333333">=</span> sh_target
-      <span style="color: #888888"># Move elbow servo to its caculated target</span>
-      el_target <span style="color: #333333">=</span> servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> (<span style="color: #0000DD; font-weight: bold">1</span><span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>)
-      move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], el_mid, el_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
-      el_mid <span style="color: #333333">=</span> el_target
-      <span style="color: #888888"># Move base servo to its caculated target</span>
-      ba_target <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
-      move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], ba_mid, ba_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
-      ba_mid <span style="color: #333333">=</span> ba_target
-      
-  <span style="color: #888888"># Function to perform returning item to a specified position)</span>
-  <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">release</span>(x, y):
-      ba_mid <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
-      sh_mid <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
-  
-      ba_target <span style="color: #333333">=</span> ba_mid <span style="color: #333333">+</span> <span style="color: #007020">float</span>(<span style="color: #007020">int</span>((<span style="color: #0000DD; font-weight: bold">300</span> <span style="color: #333333">-</span> x) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">25</span>)) <span style="color: #333333">*</span> (<span style="color: #6600EE; font-weight: bold">0.2</span> <span style="color: #333333">*</span> <span style="color: #0000DD; font-weight: bold">200</span>)
-      move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], ba_mid, ba_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
-      ba_mid <span style="color: #333333">=</span> ba_target
-  
-      sh_target <span style="color: #333333">=</span> servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]
-      move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], sh_mid, sh_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
-      sh_mid <span style="color: #333333">=</span> sh_target
-  
-      pi<span style="color: #333333">.</span>set_servo_pulsewidth(servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> (<span style="color: #6600EE; font-weight: bold">0.2</span><span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>))
-      time<span style="color: #333333">.</span>sleep(<span style="color: #0000DD; font-weight: bold">1</span>)
-      pi<span style="color: #333333">.</span>set_servo_pulsewidth(servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], <span style="color: #0000DD; font-weight: bold">0</span>)
-  <span style="color: #888888"># Function to move servos to their default (home) positions when returing the object</span>
-  <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">go_back_default</span>():
-      <span style="color: #888888"># Calculate the midpoint of the pulse width range for the shoulder servo</span>
-      sh_mid <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
-      sh_target <span style="color: #333333">=</span> sh_mid <span style="color: #333333">-</span> (<span style="color: #6600EE; font-weight: bold">0.5</span><span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>)
-      <span style="color: #888888"># Gradually move the shoulder servo to the calculated target position</span>
-      move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], sh_mid, sh_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
-        
-  <span style="color: #888888"># Function to safely turn off all servo signals and clean up</span>
-  <span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">ac_quit</span>():
-      <span style="color: #008800; font-weight: bold">for</span> joint, specs <span style="color: #000000; font-weight: bold">in</span> servo_specs<span style="color: #333333">.</span>items():
-          pi<span style="color: #333333">.</span>set_servo_pulsewidth(specs[<span style="background-color: #fff0f0">&#39;pin&#39;</span>], <span style="color: #0000DD; font-weight: bold">0</span>)
-      pi<span style="color: #333333">.</span>stop()  <span style="color: #888888"># Stop pigpio daemon</span>
-                </code></pre>
+<span style="color: #008800; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">time</span>
+<span style="color: #888888"># Initialize pigpio and check connection</span>
+pi <span style="color: #333333">=</span> pigpio<span style="color: #333333">.</span>pi()
+<span style="color: #008800; font-weight: bold">if</span> <span style="color: #000000; font-weight: bold">not</span> pi<span style="color: #333333">.</span>connected:
+    <span style="color: #007020">exit</span>(<span style="background-color: #fff0f0">&quot;Failed to connect to pigpio daemon&quot;</span>) <span style="color: #888888"># Exit if unable to connect</span>
+<span style="color: #888888"># Define the minimum duty cycles for each servo motor</span>
+min_duties <span style="color: #333333">=</span> [<span style="color: #6600EE; font-weight: bold">4.3</span>, <span style="color: #6600EE; font-weight: bold">5.8</span>, <span style="color: #0000DD; font-weight: bold">4</span>, <span style="color: #0000DD; font-weight: bold">5</span>]
+<span style="color: #888888"># Define specifications for each servo motor (pin numbers and pulse width ranges)</span>
+servo_specs <span style="color: #333333">=</span> {
+    <span style="background-color: #fff0f0">&#39;base&#39;</span>: {
+        <span style="background-color: #fff0f0">&#39;pin&#39;</span>: <span style="color: #0000DD; font-weight: bold">12</span>,
+        <span style="background-color: #fff0f0">&#39;min_pw&#39;</span>: min_duties[<span style="color: #0000DD; font-weight: bold">0</span>]<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>,              <span style="color: #888888"># e.g. 4 * 200 = 800µs</span>
+        <span style="background-color: #fff0f0">&#39;max_pw&#39;</span>: (min_duties[<span style="color: #0000DD; font-weight: bold">0</span>]<span style="color: #333333">+</span><span style="color: #6600EE; font-weight: bold">8.5</span>)<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>         <span style="color: #888888"># e.g. (4+8.5)*200 = 2500µs</span>
+    },
+    <span style="background-color: #fff0f0">&#39;shoulder&#39;</span>: {
+        <span style="background-color: #fff0f0">&#39;pin&#39;</span>: <span style="color: #0000DD; font-weight: bold">13</span>,
+        <span style="background-color: #fff0f0">&#39;min_pw&#39;</span>: min_duties[<span style="color: #0000DD; font-weight: bold">1</span>]<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>,              <span style="color: #888888"># 5.5 * 200 = 1100µs</span>
+        <span style="background-color: #fff0f0">&#39;max_pw&#39;</span>: (min_duties[<span style="color: #0000DD; font-weight: bold">1</span>]<span style="color: #333333">+</span><span style="color: #6600EE; font-weight: bold">5.6</span>)<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>         <span style="color: #888888"># (5.5+5.6)*200 = 2220µs</span>
+    },
+    <span style="background-color: #fff0f0">&#39;elbow&#39;</span>: {
+        <span style="background-color: #fff0f0">&#39;pin&#39;</span>: <span style="color: #0000DD; font-weight: bold">26</span>,
+        <span style="background-color: #fff0f0">&#39;min_pw&#39;</span>: min_duties[<span style="color: #0000DD; font-weight: bold">2</span>]<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>,              <span style="color: #888888"># 4 * 200 = 800µs</span>
+        <span style="background-color: #fff0f0">&#39;max_pw&#39;</span>: (min_duties[<span style="color: #0000DD; font-weight: bold">2</span>]<span style="color: #333333">+</span><span style="color: #6600EE; font-weight: bold">3.4</span>)<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>         <span style="color: #888888"># (4+3.4)*200 = 1480µs</span>
+    },
+    <span style="background-color: #fff0f0">&#39;wrist&#39;</span>: {
+        <span style="background-color: #fff0f0">&#39;pin&#39;</span>: <span style="color: #0000DD; font-weight: bold">4</span>,
+        <span style="background-color: #fff0f0">&#39;min_pw&#39;</span>: min_duties[<span style="color: #0000DD; font-weight: bold">3</span>]<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>,              <span style="color: #888888"># 4.5 * 200 = 900µs</span>
+        <span style="background-color: #fff0f0">&#39;max_pw&#39;</span>: (min_duties[<span style="color: #0000DD; font-weight: bold">3</span>]<span style="color: #333333">+</span><span style="color: #6600EE; font-weight: bold">1.7</span>)<span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>         <span style="color: #888888"># (4.5+1.7)*200 = 1240µs</span>
+    }
+}
+<span style="color: #888888"># Initialize all servo pins and set them to their default position (pulse width = 0)</span>
+<span style="color: #008800; font-weight: bold">for</span> joint, specs <span style="color: #000000; font-weight: bold">in</span> servo_specs<span style="color: #333333">.</span>items():
+    pi<span style="color: #333333">.</span>set_mode(specs[<span style="background-color: #fff0f0">&#39;pin&#39;</span>], pigpio<span style="color: #333333">.</span>OUTPUT) <span style="color: #888888"># Set pin mode to OUTPUT</span>
+    pi<span style="color: #333333">.</span>set_servo_pulsewidth(specs[<span style="background-color: #fff0f0">&#39;pin&#39;</span>], <span style="color: #0000DD; font-weight: bold">0</span>)
+    
+<span style="color: #888888"># Function to generate a range of float values with a specified step</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">frange</span>(start, stop, step):
+    r <span style="color: #333333">=</span> start
+    <span style="color: #008800; font-weight: bold">if</span> step <span style="color: #333333">&gt;</span> <span style="color: #0000DD; font-weight: bold">0</span>:
+        <span style="color: #008800; font-weight: bold">while</span> r <span style="color: #333333">&lt;</span> stop:
+            <span style="color: #008800; font-weight: bold">yield</span> r
+            r <span style="color: #333333">+=</span> step
+    <span style="color: #008800; font-weight: bold">else</span>:
+        <span style="color: #008800; font-weight: bold">while</span> r <span style="color: #333333">&gt;</span> stop:
+            <span style="color: #008800; font-weight: bold">yield</span> r
+            r <span style="color: #333333">+=</span> step
+            
+<span style="color: #888888"># Function to move a servo motor to a target pulse width</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">move_servo_slowly</span>(pin, start_pw, end_pw, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">25</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.1</span>):
+    <span style="color: #888888"># Determine the movement based on start and end pulse width</span>
+    <span style="color: #008800; font-weight: bold">if</span> start_pw <span style="color: #333333">&lt;</span> end_pw:
+        pw_range <span style="color: #333333">=</span> frange(start_pw, end_pw, step)
+    <span style="color: #008800; font-weight: bold">else</span>:
+        pw_range <span style="color: #333333">=</span> frange(start_pw, end_pw, <span style="color: #333333">-</span>step)
+    <span style="color: #888888"># Gradually adjust the pulse width and delay to allow smooth movement</span>
+    <span style="color: #008800; font-weight: bold">for</span> pw <span style="color: #000000; font-weight: bold">in</span> pw_range:
+        pi<span style="color: #333333">.</span>set_servo_pulsewidth(pin, pw)
+        time<span style="color: #333333">.</span>sleep(delay)
+    pi<span style="color: #333333">.</span>set_servo_pulsewidth(pin, end_pw)
+    
+<span style="color: #888888"># Function to move servos to their default (home) positions</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">default</span>():
+    <span style="color: #888888"># set default points for each servo</span>
+    sh_mid <span style="color: #333333">=</span> ((servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>) <span style="color: #333333">-</span> (<span style="color: #6600EE; font-weight: bold">0.5</span><span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>)
+    ba_mid <span style="color: #333333">=</span> ((servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>)
+    el_mid <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>])  
+    <span style="color: #888888"># Move each servo to its default position</span>
+    pi<span style="color: #333333">.</span>set_servo_pulsewidth(servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], sh_mid)
+    time<span style="color: #333333">.</span>sleep(<span style="color: #0000DD; font-weight: bold">1</span>)
+    pi<span style="color: #333333">.</span>set_servo_pulsewidth(servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], <span style="color: #0000DD; font-weight: bold">0</span>)
+
+    pi<span style="color: #333333">.</span>set_servo_pulsewidth(servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], ba_mid)
+    time<span style="color: #333333">.</span>sleep(<span style="color: #0000DD; font-weight: bold">1</span>)
+    pi<span style="color: #333333">.</span>set_servo_pulsewidth(servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], <span style="color: #0000DD; font-weight: bold">0</span>)
+
+    pi<span style="color: #333333">.</span>set_servo_pulsewidth(servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], el_mid)
+    time<span style="color: #333333">.</span>sleep(<span style="color: #0000DD; font-weight: bold">1</span>)
+    pi<span style="color: #333333">.</span>set_servo_pulsewidth(servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], <span style="color: #0000DD; font-weight: bold">0</span>)
+    
+<span style="color: #888888"># Function to perform a &quot;pick&quot; action using the robotic arm</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">pick</span>(x, y):
+    <span style="color: #888888"># Calculate initial midpoints for each joint</span>
+    wr_mid <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
+    ba_mid <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
+    sh_mid <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
+    el_mid <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
+    <span style="color: #888888"># Move wrist servo to target position</span>
+    wr_target <span style="color: #333333">=</span> servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>]
+    move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], wr_mid, wr_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
+    wr_mid <span style="color: #333333">=</span> wr_target
+    <span style="color: #888888"># Move base servo to calculated target position based on `x(find_color_cube)` input</span>
+    ba_target <span style="color: #333333">=</span> ba_mid <span style="color: #333333">+</span> (<span style="color: #007020">float</span>(<span style="color: #007020">int</span>((<span style="color: #0000DD; font-weight: bold">315</span> <span style="color: #333333">-</span> x) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">25</span>)) <span style="color: #333333">*</span> <span style="color: #6600EE; font-weight: bold">0.18</span> <span style="color: #333333">*</span> <span style="color: #0000DD; font-weight: bold">200</span>)
+    move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], ba_mid, ba_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
+    ba_mid <span style="color: #333333">=</span> ba_target
+    <span style="color: #888888"># Move elbow servo to its minimum position</span>
+    el_target <span style="color: #333333">=</span> servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]
+    move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], el_mid, el_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
+    el_mid <span style="color: #333333">=</span> el_target
+    <span style="color: #888888"># Move shoulder servo to its caculated target</span>
+    sh_target <span style="color: #333333">=</span> servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> (<span style="color: #6600EE; font-weight: bold">0.2</span> <span style="color: #333333">*</span> <span style="color: #0000DD; font-weight: bold">200</span>) <span style="color: #888888"># 0.2 duty ~ 40µs step</span>
+    move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], sh_mid, sh_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">20</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.02</span>)
+    sh_mid <span style="color: #333333">=</span> sh_target
+    <span style="color: #888888"># Move elbow servo to its caculated target</span>
+    el_target <span style="color: #333333">=</span> servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>] <span style="color: #333333">+</span> <span style="color: #007020">float</span>(<span style="color: #007020">int</span>((y <span style="color: #333333">-</span> <span style="color: #0000DD; font-weight: bold">350</span>) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">25</span>)) <span style="color: #333333">*</span> (<span style="color: #6600EE; font-weight: bold">0.2</span> <span style="color: #333333">*</span> <span style="color: #0000DD; font-weight: bold">200</span>)
+    move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], el_mid, el_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
+    el_mid <span style="color: #333333">=</span> el_target
+    <span style="color: #888888"># Move wrist servo to its caculated target</span>
+    wr_target <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
+    move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], wr_mid, wr_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
+    wr_mid <span style="color: #333333">=</span> wr_target
+    <span style="color: #888888"># Move shoulder servo to its caculated target</span>
+    sh_target <span style="color: #333333">=</span> ((servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>) <span style="color: #333333">-</span> (<span style="color: #6600EE; font-weight: bold">0.5</span><span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>)
+    move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], sh_mid, sh_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">20</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.02</span>)
+    sh_mid <span style="color: #333333">=</span> sh_target
+    <span style="color: #888888"># Move elbow servo to its caculated target</span>
+    el_target <span style="color: #333333">=</span> servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> (<span style="color: #0000DD; font-weight: bold">1</span><span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>)
+    move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;elbow&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], el_mid, el_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
+    el_mid <span style="color: #333333">=</span> el_target
+    <span style="color: #888888"># Move base servo to its caculated target</span>
+    ba_target <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
+    move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], ba_mid, ba_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
+    ba_mid <span style="color: #333333">=</span> ba_target
+    
+<span style="color: #888888"># Function to perform returning item to a specified position)</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">release</span>(x, y):
+    ba_mid <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
+    sh_mid <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
+
+    ba_target <span style="color: #333333">=</span> ba_mid <span style="color: #333333">+</span> <span style="color: #007020">float</span>(<span style="color: #007020">int</span>((<span style="color: #0000DD; font-weight: bold">300</span> <span style="color: #333333">-</span> x) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">25</span>)) <span style="color: #333333">*</span> (<span style="color: #6600EE; font-weight: bold">0.2</span> <span style="color: #333333">*</span> <span style="color: #0000DD; font-weight: bold">200</span>)
+    move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;base&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], ba_mid, ba_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
+    ba_mid <span style="color: #333333">=</span> ba_target
+
+    sh_target <span style="color: #333333">=</span> servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]
+    move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], sh_mid, sh_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
+    sh_mid <span style="color: #333333">=</span> sh_target
+
+    pi<span style="color: #333333">.</span>set_servo_pulsewidth(servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> (<span style="color: #6600EE; font-weight: bold">0.2</span><span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>))
+    time<span style="color: #333333">.</span>sleep(<span style="color: #0000DD; font-weight: bold">1</span>)
+    pi<span style="color: #333333">.</span>set_servo_pulsewidth(servo_specs[<span style="background-color: #fff0f0">&#39;wrist&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], <span style="color: #0000DD; font-weight: bold">0</span>)
+<span style="color: #888888"># Function to move servos to their default (home) positions when returing the object</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">go_back_default</span>():
+    <span style="color: #888888"># Calculate the midpoint of the pulse width range for the shoulder servo</span>
+    sh_mid <span style="color: #333333">=</span> (servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;max_pw&#39;</span>] <span style="color: #333333">+</span> servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;min_pw&#39;</span>]) <span style="color: #333333">/</span> <span style="color: #0000DD; font-weight: bold">2</span>
+    sh_target <span style="color: #333333">=</span> sh_mid <span style="color: #333333">-</span> (<span style="color: #6600EE; font-weight: bold">0.5</span><span style="color: #333333">*</span><span style="color: #0000DD; font-weight: bold">200</span>)
+    <span style="color: #888888"># Gradually move the shoulder servo to the calculated target position</span>
+    move_servo_slowly(servo_specs[<span style="background-color: #fff0f0">&#39;shoulder&#39;</span>][<span style="background-color: #fff0f0">&#39;pin&#39;</span>], sh_mid, sh_target, step<span style="color: #333333">=</span><span style="color: #0000DD; font-weight: bold">10</span>, delay<span style="color: #333333">=</span><span style="color: #6600EE; font-weight: bold">0.05</span>)
+    
+<span style="color: #888888"># Function to safely turn off all servo signals and clean up</span>
+<span style="color: #008800; font-weight: bold">def</span> <span style="color: #0066BB; font-weight: bold">ac_quit</span>():
+    <span style="color: #008800; font-weight: bold">for</span> joint, specs <span style="color: #000000; font-weight: bold">in</span> servo_specs<span style="color: #333333">.</span>items():
+        pi<span style="color: #333333">.</span>set_servo_pulsewidth(specs[<span style="background-color: #fff0f0">&#39;pin&#39;</span>], <span style="color: #0000DD; font-weight: bold">0</span>)
+    pi<span style="color: #333333">.</span>stop()  <span style="color: #888888"># Stop pigpio daemon</span>
+            </code></pre>
                 
 <h3>go_back.py </h3>
 <pre><code>
